@@ -128,6 +128,12 @@ the monitor checkpoint. These are not independent test trials, labeled grasps,
 misses, or slips. `/data/eval/milk_one_step_distribution_val.json` contains
 per-episode breakdowns and normalized MSE. No new held-out test was accessed.
 
+A learned per-object change gate is a possible later experiment: predict a
+change probability from current history and the accepted action, then modulate
+the predicted change. The retrospective motion-proxy label above may supervise
+training, but must never be supplied as an online input. The current monitor
+remains passive and this gate has not been implemented or evaluated.
+
 ## Separate SAM checks
 
 - The official SAM `assets/images/test_image.jpg` with the notebook's `shoe`

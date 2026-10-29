@@ -23,6 +23,19 @@ def merge_refined_masks(cached, refined):
     return result
 
 
+def diagnostic_tpos_maximum(original_maximum, fixed_maximum=None, *, dummy=False):
+    """Override only the temporal-encoding maximum in a diagnostic probe.
+
+    This does not change the video's frame count or which object pointers are
+    selected. Dummy/no-maximum encodings are left untouched.
+    """
+    if dummy or original_maximum is None or fixed_maximum is None:
+        return original_maximum
+    if original_maximum <= 1 or fixed_maximum <= 1:
+        raise ValueError("Temporal encoding maxima must be greater than one")
+    return fixed_maximum
+
+
 def unique_mask(outputs, shape):
     """Accept exactly one nonempty instance; never silently union multiple objects.
 

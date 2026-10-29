@@ -53,6 +53,9 @@ def run_case(kind: str, repeat: int, clip_index: int = 0):
         checkpoint_path="/data/checkpoints/sam3.1/sam3.1_multiplex.pt",
         use_fa3=False, compile=False, warm_up=False, async_loading_frames=False)
     _patch_multiplex_init_state(model)
+    # The upstream predictor constructor enables TF32; enforce this setting after it.
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
     indices = list(range(11 if kind == "prefix" else n))
     if kind == "reverse_future":
         indices[11:] = list(reversed(indices[11:]))
@@ -147,6 +150,8 @@ def run_case(kind: str, repeat: int, clip_index: int = 0):
               "logit_storage": "pre-threshold tracker logits cast to float32 for storage",
               "mask_area": int(found["mask"].sum()),
               "torch_version": str(torch.__version__), "cuda": str(torch.version.cuda),
+              "matmul_allow_tf32": bool(torch.backends.cuda.matmul.allow_tf32),
+              "cudnn_allow_tf32": bool(torch.backends.cudnn.allow_tf32),
               "full_video_quality": quality}
     (out / (stem + ".json")).write_text(json.dumps(result, indent=2) + "\n")
     volume.commit()

@@ -5,6 +5,15 @@ from odvla.perception import unique_mask
 
 
 class IntegrationContractTests(unittest.TestCase):
+    def test_diagnostic_tpos_override_is_local_and_explicit(self):
+        from odvla.perception import diagnostic_tpos_maximum
+        self.assertEqual(diagnostic_tpos_maximum(11), 11)
+        self.assertEqual(diagnostic_tpos_maximum(11, 16), 16)
+        self.assertEqual(diagnostic_tpos_maximum(11, 16, dummy=True), 11)
+        self.assertIsNone(diagnostic_tpos_maximum(None, 16))
+        with self.assertRaises(ValueError):
+            diagnostic_tpos_maximum(11, 1)
+
     def test_refined_mask_merge_handles_missing_and_existing_cache(self):
         from odvla.perception import merge_refined_masks
         cached = {1: np.ones((2, 2), dtype=bool), 2: np.zeros((2, 2), dtype=bool)}

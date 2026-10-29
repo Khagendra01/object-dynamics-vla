@@ -102,6 +102,10 @@ Each case ran in a **single-use container** with a fresh predictor, fixed seed,
 checkpoint, CUDA/bfloat16 precision and configuration. The second repetition
 ran cases in reverse order. The human-annotation-derived initial point was held
 fixed within each clip; later labels were used only for post-hoc scoring.
+The v1 script set TF32 flags before predictor construction, but the pinned
+constructor enables them again. Effective flags were not logged, so the v1
+results must not be described as verified TF32-disabled measurements. The script
+now sets and records those flags after construction for future runs.
 
 For each clip, the first 11 JPEGs were byte-identical across cases. At the same
 full video length, the future was either original, reversed after frame 10, or
@@ -135,3 +139,54 @@ was nonterminal. The prefix/full lengths still produced nonidentical logits and
 masks, so this is **not yet strict prefix consistency** or proof of a live
 appendable online adapter. The scores above are one object per video and do not
 establish LIBERO performance, robust occlusion handling, or autonomous grounding.
+
+## Temporal pointer normalization: targeted causal intervention
+
+`scripts/modal_sam31_temporal_probe.py` tested the sequence-length hypothesis on
+the same `bike-packing` clip and annotation-derived initial point. Each case ran
+in a fresh single-use A100 container with the same first 11 image bytes, seed,
+checkpoint and bfloat16 autocast. The model's active tracker was
+`sam3.model.video_tracking_multiplex_demo.Sam3VideoTrackingMultiplexDemo`; the
+memory-attention wrapper was `sam3.model.model_misc.TransformerWrapper`, with a
+four-layer `sam3.model.decoder.TransformerEncoderDecoupledCrossAttention`,
+`DecoupledTransformerDecoderLayerv2` layers, and `SimpleRoPEAttention` cross
+attention. Object pointers and their temporal encoding were enabled, with a
+configured maximum of 16. `only_obj_ptrs_in_the_past_for_eval` was **false**, so
+past-only behavior must not be assumed generally. In this experiment the actual selected pointer
+frames were inspected and all were already available.
+
+At frame 10, actual selected pointers were frames `0,9,8,7,6,5,4,3,2,1` in
+every case. The baseline's observed pointer budget was `min(num_frames,16)`;
+the active `_get_tpos_enc` call divided relative offsets by budget minus one.
+Against the 16-frame baseline:
+
+| Declared length | Pointer budget | Temporal denominator | Max raw-logit difference | Different output pixels |
+|---:|---:|---:|---:|---:|
+| 11 | 11 | 10 | 0.6250 | 32 |
+| 12 | 12 | 11 | 0.4375 | 43 |
+| 15 | 15 | 14 | 0.2500 | 28 |
+| 16 | 16 | 15 | 0 | 0 |
+| 17 | 16 | 15 | 0 | 0 |
+| 69 | 16 | 15 | 0 | 0 |
+
+The diagnostic intervention changed **only** the `max_abs_pos` argument to
+`_get_tpos_enc`, fixing the denominator to 15. It did not change `num_frames`,
+pad the input, or alter upstream pointer-selection bounds. Pointer selections
+through frame 10 matched the 16-frame baseline, and the instrumentation required
+every selected pointer in the intervention to resolve to a frame no later than
+the current frame. With the fixed denominator, frame-10 logits and masks were
+bit-identical to the 16-frame result for **all six lengths**. Fresh-container
+repeats at lengths 11 and 16 were also exact in both modes.
+
+This confirms temporal pointer normalization as the cause of the observed
+length-dependent frame-10 discrepancy **for this point-path setup**. It does not
+prove a general streaming or causality guarantee, address the separate box-path
+removal, or validate a production adapter. The complete JSON and pre-threshold
+arrays are retained under `/data/eval/sam31_temporal_probe_v1/` on Modal; the JSON
+summary is mirrored at `outputs/libero/oracle/sam31_temporal_probe_v1_summary.json`.
+
+The instrumented run observed both TF32 flags as `true` immediately after the
+pinned predictor constructor. It then set both to `false`; both were confirmed
+false at frame-10 emission. The earlier v1 repeatability matrix did not record
+effective post-construction TF32 flags, so it remains historical evidence of
+repeatability rather than a verified TF32-disabled run.

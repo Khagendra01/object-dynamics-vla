@@ -18,7 +18,7 @@ controller units, frame conventions, model APIs, or benchmark success.
 Modal T4/A100: synthetic smoke and ablations, CLI
 audit/replay/predict/evaluate/report, HDF5 fixture import, GPU training, and two
 real LIBERO-Object tasks (50 demos each) downloaded, imported, and audited.
-The latest local automated suite passes 23 tests.
+The latest local automated suite passes 24 tests.
 
 The latest validation-only action, gradient, passive-monitor, and independent
 SAM probes are in `docs/DIAGNOSTICS_REPORT.md`. At frozen milk checkpoints the
@@ -42,6 +42,14 @@ change, but prefix/full frame-10 masks still differ by 32, 7, and 4 pixels. It
 is not validated as a strictly prefix-consistent production adapter. The passive monitor now
 uses a separately trained one-action head; it does not receive hypothetical later
 actions. Validation and on-policy limitations are in `docs/DIAGNOSTICS_REPORT.md`.
+
+The later targeted bike-packing intervention identified sequence-length-dependent
+pointer temporal normalization as the cause of that frame-10 discrepancy in
+this point-path setup. Fixing only the encoding denominator to 15 made tested
+lengths 11, 12, 15, 16, 17, and 69 identical at frame 10, with unchanged
+available-past pointer selection. This is diagnostic, not yet a production or
+general causality guarantee; `only_obj_ptrs_in_the_past_for_eval` was false.
+Full details and effective TF32 flags are in `docs/TRACKER_TRACE_REPORT.md`.
 
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced
