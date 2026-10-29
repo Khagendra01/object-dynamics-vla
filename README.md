@@ -24,6 +24,8 @@ Open these files before installing anything:
 - `docs/VALIDATION.md`: what passed, what was not run, and how to interpret results.
 - `docs/DIAGNOSTICS_REPORT.md`: action clipping, shared gradients, validation-only
   weight sweep, passive prediction monitoring, and separate SAM probes.
+- `docs/TRACKER_TRACE_REPORT.md`: DAVIS propagation-stage trace, availability
+  timing, and the diagnostic point-path workaround.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 

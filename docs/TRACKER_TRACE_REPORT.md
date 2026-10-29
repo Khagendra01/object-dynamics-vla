@@ -1,0 +1,94 @@
+# DAVIS SAM 3.1 propagation trace
+
+This is an integration diagnostic on the 69-frame DAVIS `bike-packing`
+validation video, not a LIBERO result or a benchmark comparison. The pinned
+SAM commit is `f1647e8d0c1d280991f4d1b7d974c2704537fe66`. The human-annotated
+first-frame object-1 mask supplies a box and an interior point; later masks are
+used only for evaluation. The image is **910×480**. The normalized box is
+`[0.284615, 0.343750, 0.249451, 0.656250]` in **xywh** order; the point is
+`[0.385165, 0.705208]` in **xy** order. Coordinates were divided by width for
+x and height for y. Original box initialization returned ID 0 and first-frame
+IoU 0.72867; the point initialization response was empty, but the subsequent
+first propagated ID 1 mask had first-frame IoU 0.73336.
+
+`scripts/modal_sam31_trace.py` records the full machine-readable stage trace at
+`/data/eval/davis_sam31_stage_trace_v2.json` on the Modal volume, copied locally
+to `outputs/libero/oracle/davis_sam31_stage_trace_v2.json`. Raw outputs and DAVIS
+images remain outside the public repository. The probe uses the unmodified
+upstream propagation implementation with the existing single-session
+`offload_state_to_cpu` compatibility shim. It compares the official request API
+to calling the underlying model directly in independent sessions, then separately
+tests a narrow diagnostic point-path workaround. Both baseline paths agreed on
+the first 11 emitted frames.
+
+## Request and availability
+
+The request was forward propagation from frame 0, with no frame limit and an
+output threshold argument of 0.0. The wrapper accepts
+`force_tracker_propagation`, but the interactivity model's method signature does
+not explicitly declare it; the pinned wrapper omits it. **The earlier forced
+and unforced experiments did not establish different propagation modes.** Box
+initialization selected `propagation_full`; point initialization selected
+`propagation_partial` for ID 1. The full path's hot-start delay is 15 and its
+postprocess batch size is 16. In this run, public outputs describing frames
+0–15 were emitted only after **30 frames had been processed** (through frame
+29). A consumer must not backdate those delayed results as if they were
+available at the described frame.
+
+An earlier attempt with `max_frame_num_to_track=31` raised an upstream
+`pos_pred_mask.shape[0] == 1` assertion near its final frame. The recorded trace
+uses the full 69-frame limit and completed. The bounded-run assertion has not
+been isolated, so this trace does not establish that limited propagation works.
+
+## Box path: frames 0–10
+
+The table shows the raw mask area in full video pixels for target ID 0 and the
+actual postprocessing/collector result. `unconfirmed` is the status supplied to
+the filter, which can use a later frame's status; removed and suppressed ID
+lists passed to this filter were empty for these rows. Tracker confidence was
+approximately 1.0 for the nonempty raw masks. Detection score remained 0.9416
+through frame 6 and was the sentinel -10000 at frame 7.
+
+| Frame | Raw area | Active ID after frame | Filter / public response | Stored area |
+|---:|---:|---|---|---:|
+| 0 | 38057 | 0 | ID 0 unconfirmed; empty | 0 |
+| 1 | 37996 | 0 | ID 0 unconfirmed; empty | 0 |
+| 2 | 37875 | 0 | ID 0 unconfirmed; empty | 0 |
+| 3 | 37631 | 0 | ID 0 unconfirmed; empty | 0 |
+| 4 | 37033 | 0 | ID 0 unconfirmed; empty | 0 |
+| 5 | 36044 | 0 | ID 0 returned | 36044 |
+| 6 | 34145 | 0 | ID 0 returned | 34145 |
+| 7 | 34176 | none | ID 0 returned, score -10000 | 34176 |
+| 8 | none | none | empty | 0 |
+| 9 | none | none | empty | 0 |
+| 10 | none | none | empty | 0 |
+
+Thus the early missing public outputs were filtered despite nonempty internal
+masks. By frame 7 the active tracker ID was gone, and from frame 8 there was no
+internal mask to return. The logged removed/suppressed lists do not identify the
+reason for that transition; the trace does not prove why the full grounding path
+removed the active object. Our collector did not drop a returned ID in these rows.
+
+## Point path: frames 0–10
+
+ID 1's internal tracker produced nonempty 288×288 mask logits in every frame
+0–10. At frame 1 the positive-logit area was 7511 and raw tracker score was
+12.25. The frame had **no cached full-grounding output**; the pinned
+`_build_sam2_output` immediately returned `{}` before merging the available
+refined ID 1 mask. The public response and collector were therefore empty from
+frame 1 onward, even though internal masks existed. This behavior was identical
+through the official request wrapper and the direct underlying model call.
+
+A diagnostic-only workaround returns the refined masks when that frame has no
+cache, while preserving the original merge when a cache exists. It restored
+nonempty public ID 1 masks on all 69 frames. On this one video the mean region
+IoU against later annotations was **0.6710**; no future annotation supplied a
+prompt. This is a targeted workaround for this failure path, not a generally
+validated production adapter or autonomous identity grounding.
+
+The workaround's point-path outputs were emitted after each corresponding frame
+was processed in this instrumented run. For the separate 11-frame-prefix versus
+full-video test, the frame-10 masks differed by 32 pixels; frame 20 matched.
+Both were nonempty. This is not a successful strict prefix-consistency test;
+the observed difference could involve numerical or length-dependent behavior
+and requires controlled repeatability analysis before any causal claim.

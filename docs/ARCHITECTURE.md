@@ -38,6 +38,14 @@ test checks that each objective reaches the shared encoder. Target measurements
 are not gated by the learned selector, so it cannot reduce loss by suppressing
 the target validity mask.
 
+The original multi-step dynamics head consumes the **entire** action chunk;
+its first output is therefore not guaranteed to be action-prefix-causal. For
+passive monitoring there is now a separate `OneStepDynamicsHead`, trained from
+a frozen policy encoder with only the current executed action and the next-state
+delta. Existing multi-step checkpoints are unchanged. The one-step head is
+validated offline; it is not yet a recovery controller. See
+`docs/DIAGNOSTICS_REPORT.md`.
+
 The prototype selector gates measurement types, shared across slots/history.
 With Muse context it is scene/instruction conditioned; without it, state conditioned.
 It does not yet learn local mask keypoints or a spatial attention map.

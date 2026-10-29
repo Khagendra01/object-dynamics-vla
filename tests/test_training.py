@@ -34,6 +34,7 @@ class TrainingTests(unittest.TestCase):
     def test_train_evaluate_and_prefix_inference(self):
         from odvla.experiment import train, evaluate, load_run
         from odvla.inference import predict
+        from odvla.one_step import train_one_step, load_one_step
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); ds = root / "ds"
             generate(ds, episodes=10, steps=24)
@@ -42,6 +43,14 @@ class TrainingTests(unittest.TestCase):
             train(ds, split, run, epochs=3, hidden=32, batch_size=32)
             self.assertFalse(read_json(run / "data_summary.json")["test_accessed"])
             self.assertFalse((run / "test_metrics.json").exists())
+            monitor_dir = root / "monitor"
+            monitor_meta = train_one_step(ds, run, monitor_dir, epochs=2, batch_size=32)
+            self.assertFalse(monitor_meta["test_accessed"])
+            _, parent_config, _ = load_run(run)
+            self.assertIsNotNone(load_one_step(monitor_dir, run, parent_config))
+            bad_config = dict(parent_config, dataset_fingerprint="wrong")
+            with self.assertRaises(ValueError):
+                load_one_step(monitor_dir, run, bad_config)
             metrics = evaluate(ds, run)
             self.assertTrue(np.isfinite(metrics["dynamics"]["normalized_mse"]))
             model, cfg, stats = load_run(run)

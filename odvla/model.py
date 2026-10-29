@@ -53,5 +53,19 @@ class ObjectDynamicsPolicy(nn.Module):
         return action
 
 
+class OneStepDynamicsHead(nn.Module):
+    """Predict one observation delta from shared state and one executed action."""
+    def __init__(self, hidden, action_channels, objects, features):
+        super().__init__()
+        self.action_channels = action_channels
+        self.net = nn.Sequential(nn.Linear(hidden + action_channels, hidden), nn.SiLU(),
+                                 nn.Linear(hidden, objects * features))
+
+    def forward(self, encoded, executed_action):
+        if executed_action.ndim != 2 or executed_action.shape[1] != self.action_channels:
+            raise ValueError("One-step head accepts exactly one action per observation")
+        return self.net(torch.cat([encoded, executed_action], dim=-1))
+
+
 def masked_mse(predicted, target, mask):
     return ((predicted - target).square() * mask).sum() / mask.sum().clamp_min(1)

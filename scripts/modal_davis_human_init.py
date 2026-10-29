@@ -67,7 +67,7 @@ def acquire():
 
 
 @app.function(image=inference_image, gpu="A100-80GB", volumes={"/data": volume}, timeout=3600)
-def track():
+def track(point_workaround: bool = False):
     import json
     import shutil
     import sys
@@ -90,6 +90,8 @@ def track():
     height, width = first.shape
     box = [float(xs.min() / width), float(ys.min() / height),
            float((xs.max() - xs.min() + 1) / width), float((ys.max() - ys.min() + 1) / height)]
+    nearest = np.argmin((xs - xs.mean()) ** 2 + (ys - ys.mean()) ** 2)
+    point = [float((xs[nearest] + .5) / width), float((ys[nearest] + .5) / height)]
     model = build_sam3_multiplex_video_predictor(
         checkpoint_path="/data/checkpoints/sam3.1/sam3.1_multiplex.pt",
         use_fa3=False, compile=False, warm_up=False, async_loading_frames=False)
@@ -106,23 +108,38 @@ def track():
                 shutil.copyfile(root / "frames" / f"{i:06}.jpg", folder / f"{i:06}.jpg")
             sid = model.handle_request({"type": "start_session", "resource_path": str(folder),
                                         "offload_video_to_cpu": True})["session_id"]
+            original_build = model.model._build_sam2_output
             try:
-                initial = model.handle_request({"type": "add_prompt", "session_id": sid,
-                    "frame_index": 0, "bounding_boxes": [box], "bounding_box_labels": [1],
-                    "output_prob_thresh": 0.0})["outputs"]
-                initial_ids = np.asarray(initial["out_obj_ids"])
-                if len(initial_ids) != 1:
-                    raise ValueError(f"Expected one initialized instance; received {initial_ids.tolist()}")
-                target = int(initial_ids[0])
+                prompt = {"type": "add_prompt", "session_id": sid, "frame_index": 0,
+                          "output_prob_thresh": 0.0}
+                if point_workaround:
+                    prompt.update(points=[point], point_labels=[1], obj_id=1)
+                else:
+                    prompt.update(bounding_boxes=[box], bounding_box_labels=[1])
+                initial = model.handle_request(prompt)["outputs"]
+                if point_workaround:
+                    target = 1
+                    def merge(state, frame_idx, refined_obj_id_to_mask=None):
+                        if frame_idx not in state["cached_frame_outputs"] and refined_obj_id_to_mask is not None:
+                            return dict(refined_obj_id_to_mask)
+                        return original_build(state, frame_idx, refined_obj_id_to_mask)
+                    model.model._build_sam2_output = merge
+                else:
+                    initial_ids = np.asarray(initial["out_obj_ids"])
+                    if len(initial_ids) != 1:
+                        raise ValueError(f"Expected one initialized instance; received {initial_ids.tolist()}")
+                    target = int(initial_ids[0])
                 results = {}
                 for item in model.handle_stream_request({"type": "propagate_in_video", "session_id": sid,
-                        "propagation_direction": "forward", "output_prob_thresh": 0.0}):
+                        "propagation_direction": "forward", "start_frame_index": 0,
+                        "output_prob_thresh": 0.0}):
                     output = item["outputs"]
                     matches = np.flatnonzero(np.asarray(output["out_obj_ids"]) == target)
                     masks = np.asarray(output["out_binary_masks"])
                     results[int(item["frame_index"])] = masks[matches[0]] if len(matches) == 1 else np.zeros((height, width), bool)
                 sequences[length] = results
             finally:
+                model.model._build_sam2_output = original_build
                 model.handle_request({"type": "close_session", "session_id": sid})
     full = sequences[n]
     scores = []
@@ -142,17 +159,19 @@ def track():
                               "full_nonempty": bool(b.any()) if b is not None else False}
     valid_scores = [s for s in scores if s is not None]
     report = {"metadata": metadata, "object_id": object_id, "box_xywh_normalized": box,
-              "prompt_provenance": "box derived from first-frame human annotation; no future labels used to prompt",
+              "prompt_provenance": ("point" if point_workaround else "box") + " derived from first-frame human annotation; no future labels used to prompt",
+              "point_xy_normalized": point if point_workaround else None,
+              "missing_cache_workaround": point_workaround,
               "frames_returned": len(full), "nonempty_predictions": sum(bool(m.any()) for m in full.values()),
               "mean_region_iou": float(np.mean(valid_scores)), "iou_by_frame": scores,
               "prefix_checks": prefix, "evaluation_scope": "one DAVIS video; not LIBERO, not autonomous grounding"}
-    path = Path("/data/eval/davis_human_init_sam31_probe.json")
+    path = Path("/data/eval/davis_human_init_sam31_point_workaround.json" if point_workaround else "/data/eval/davis_human_init_sam31_probe.json")
     path.write_text(json.dumps(report, indent=2) + "\n")
     volume.commit()
     return report
 
 
 @app.local_entrypoint()
-def main():
+def main(point_workaround: bool = False):
     print("Acquired:", acquire.remote())
-    print("Tracking:", track.remote())
+    print("Tracking:", track.remote(point_workaround))

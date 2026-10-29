@@ -15,7 +15,7 @@ def summarize_actions(values):
 
 
 def accepted_chunk_forecast(prefix, actions, model, config, stats, device="cpu"):
-    """Predict one-step delta using the accepted first action and proposed remainder.
+    """Historical chunk-conditioned diagnostic, unsuitable for one-step monitoring.
 
     The head expects the whole future action chunk; only its first element is
     actually executed before the observation. Later actions are hypothetical.
@@ -35,3 +35,19 @@ def accepted_chunk_forecast(prefix, actions, model, config, stats, device="cpu")
                               config["no_dynamics_actions"])
     delta = pred.cpu().numpy().reshape(config["horizon"], config["objects"], config["features"])
     return delta[0] * stats["feature_std"][None, :]
+
+
+def one_step_forecast(prefix, executed_action, encoder, head, config, stats, device="cpu"):
+    """Forecast a one-step delta from history and exactly one executed action."""
+    import torch
+    from .data import encode_history
+    action = np.asarray(executed_action, dtype=np.float32)
+    if action.shape != (config["action_channels"],) or not np.isfinite(action).all():
+        raise ValueError("Expected exactly one finite executed action")
+    normalized = (action - stats["actions_mean"]) / stats["actions_std"]
+    x = encode_history(prefix, len(prefix["timestamps"]) - 1, config["history"],
+                       stats, config["no_objects"])
+    with torch.no_grad():
+        h, _ = encoder.encode(torch.from_numpy(x[None]).to(device))
+        delta = head(h, torch.from_numpy(normalized[None].astype(np.float32)).to(device))
+    return delta.cpu().numpy().reshape(config["objects"], config["features"]) * stats["feature_std"][None, :]

@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 11812,
-      "sha256": "ba106c10f76d62362e2cb880bcf283b8d5cd21a4273d84ac5e45290a1e408743"
+      "bytes": 12303,
+      "sha256": "a5a14769d1b906cc7d5f7a579be8a267b5125f3be13e68fb17d66a684633f8af"
     },
     {
       "path": "LICENSE",
@@ -24,13 +24,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13142,
-      "sha256": "24a4e0f18f9c1640f0f96ac30131421b8976d2d37a45c2c43c944617885beeb9"
+      "bytes": 13272,
+      "sha256": "62face709555a72d33ec8610e78fd82ebb23a45723567917873f73b1e0853a57"
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "bytes": 4629,
-      "sha256": "e744d2baa9cb01efd1c06ed637e5627c018f53fca6d79d9a4422e0c41fcb5e94"
+      "bytes": 5108,
+      "sha256": "4d43c6fdea310db278168ee6873344a40cb3e8b729e38cc099b48852c1ccb8b3"
     },
     {
       "path": "docs/DATA_SCHEMA.md",
@@ -39,8 +39,8 @@
     },
     {
       "path": "docs/DIAGNOSTICS_REPORT.md",
-      "bytes": 8715,
-      "sha256": "0c9379008d686f28915f5413f4b4c589e2befff1dcbbfe80349aacde6f7c128e"
+      "bytes": 10533,
+      "sha256": "1135b9d8c06ee544c76ca179eb6d2c2638d41ebc7af52f69a82d0cb66f9b2d59"
     },
     {
       "path": "docs/EXECUTION_REPORT.md",
@@ -56,6 +56,11 @@
       "path": "docs/SOURCES.md",
       "bytes": 1927,
       "sha256": "4f9572fae40d9f5838bc42b17f816597e5aefa3d683919d412cb003a22d77dfd"
+    },
+    {
+      "path": "docs/TRACKER_TRACE_REPORT.md",
+      "bytes": 5512,
+      "sha256": "4a62c6672661a998d2f6aad31284e4a48897d9088daf4a6cdc89d348d78b1842"
     },
     {
       "path": "docs/VALIDATION.md",
@@ -89,8 +94,8 @@
     },
     {
       "path": "odvla/diagnostics.py",
-      "bytes": 1942,
-      "sha256": "684f1ee6119978bb68c0fd428d47f9104e6065d5867b88b79b8fcc067d186b58"
+      "bytes": 2887,
+      "sha256": "d4fd51fa410c44224ac20f4a4bc59100e3efed47074a17e76a8ae2b7e7e79f21"
     },
     {
       "path": "odvla/experiment.py",
@@ -109,8 +114,13 @@
     },
     {
       "path": "odvla/model.py",
-      "bytes": 2765,
-      "sha256": "8a68e530f0bcf7286bdb4806bd0c41b2eacd44a674b4fbecd38d9af6add9f604"
+      "bytes": 3491,
+      "sha256": "89b12998bec36b6e88abad7f46915683941190e8d3cac46eb10d01d57d7ca4cc"
+    },
+    {
+      "path": "odvla/one_step.py",
+      "bytes": 4847,
+      "sha256": "6ce985772396b403fd7a8cce755c7ba12ba88c8524bfd5dff2fedec40ea3fa8a"
     },
     {
       "path": "odvla/perception.py",
@@ -159,8 +169,8 @@
     },
     {
       "path": "scripts/modal_davis_human_init.py",
-      "bytes": 8468,
-      "sha256": "6bd7eb0d2f8cf763532de2a7cad6650298f52ddc3cd24d5368a691faba582858"
+      "bytes": 9820,
+      "sha256": "c03b6ac26280b8dbe7e6ef10686227644e957110d1259e72425b5ef7c7a76cff"
     },
     {
       "path": "scripts/modal_download_libero_milk.py",
@@ -189,8 +199,8 @@
     },
     {
       "path": "scripts/modal_libero_policy_rollout.py",
-      "bytes": 10961,
-      "sha256": "a1a785dcfeee6d9b2d1f050bf87e00ac54228ba08d3120e9551a420cb381b9ef"
+      "bytes": 11131,
+      "sha256": "a839bb245c4dcbf68bf3455f0f83a2da1d5ec5fe220d59e345439d8d509914d3"
     },
     {
       "path": "scripts/modal_loss_weight_sweep.py",
@@ -238,9 +248,19 @@
       "sha256": "861560606ee832ab1cb98426559aa78e84186307887151bec1631c14d0e19def"
     },
     {
+      "path": "scripts/modal_sam31_trace.py",
+      "bytes": 14697,
+      "sha256": "2aa62a93642ddc4c14b767d9eb8cb5914a1ae563419439af4b8bf738ae3a582b"
+    },
+    {
       "path": "scripts/modal_train.py",
       "bytes": 1665,
       "sha256": "97dab981bc6dcf75b5df8288c08744d94f6722717aacbcd350ac4251152bb130"
+    },
+    {
+      "path": "scripts/modal_train_one_step.py",
+      "bytes": 887,
+      "sha256": "086a2ab5e867825474264d4984811a99b0965760420ce9ebcc529bacca86e55d"
     },
     {
       "path": "scripts/run_ablations.py",
@@ -254,8 +274,8 @@
     },
     {
       "path": "tests/test_diagnostics.py",
-      "bytes": 1751,
-      "sha256": "59a5b0917bcc1b878836b561c93f01443bc8e4b2bfb48fd23fa6febe68b5a080"
+      "bytes": 3188,
+      "sha256": "b8f6570ddda1a1a37e6f4862dd3662afd60dc77858a8a39f287f846e5a7ada4b"
     },
     {
       "path": "tests/test_integrations.py",
@@ -264,8 +284,8 @@
     },
     {
       "path": "tests/test_training.py",
-      "bytes": 2618,
-      "sha256": "fa980df9f3c61f61243d8b0906535a3afce40b860ae5f055c60d7c0e5792aa74"
+      "bytes": 3186,
+      "sha256": "f146b15d5e0e605da4b841de8cc6eadc62d12be102d454c4d956f28b6b029874"
     }
   ]
 }

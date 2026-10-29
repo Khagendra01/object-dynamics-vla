@@ -34,6 +34,13 @@ provide LIBERO annotations or a verified human-initialized tracking episode. The
 next untouched evaluation requires fresh initializations:
 the original eight test demonstrations have already been evaluated.
 
+The SAM stage trace and narrow missing-cache point-path workaround are documented
+in `docs/TRACKER_TRACE_REPORT.md`. On one DAVIS video the workaround restored all
+69 masks, but the nonempty prefix/full comparison differed by 32 pixels at frame
+10. It is not validated as a causal production adapter. The passive monitor now
+uses a separately trained one-action head; it does not receive hypothetical later
+actions. Validation and on-policy limitations are in `docs/DIAGNOSTICS_REPORT.md`.
+
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced
 296 missing and zero observed masks. Do not repeat that extraction or attach the

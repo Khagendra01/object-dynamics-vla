@@ -77,7 +77,7 @@ success claim was made. Raw batches and per-seed results are in
 
 ## Passive numerical monitor
 
-The monitor forecasts the next numerical change before each step, conditions on
+The historical monitor forecast the next numerical change before each step, conditioned on
 the accepted clipped first action and a clipped *hypothetical* remainder of the
 sampled action chunk, then records the observed post-step change and valid mask.
 It does not alter control. This is a limitation of the current multi-action
@@ -89,6 +89,26 @@ episode and 0.001609 pooled over seven failures. Those are correlated time
 steps, not independent trials; there are no grasp/miss/slip labels. This does
 not establish event discrimination or a recovery trigger.
 
+The corrected monitor is a separately trained `OneStepDynamicsHead`: it receives
+only frozen encoded history and the accepted action at t, with target delta at
+t+1. Training uses the parent policy's train/validation splits and normalization,
+freezes that encoder, and ties the head to the parent weight hash and dataset
+fingerprint. On milk it selected epoch 27 of 30, with one-step validation
+normalized MSE 0.00106467; test was not accessed. The rollout enables it only
+when its checkpoint is explicitly supplied and never silently reuses the old
+chunk-conditioned head. A regression test changes later hypothetical actions
+while keeping the accepted action fixed; the forecast is identical, and a full
+chunk is rejected.
+
+In the validation seed-7/schedule-7 rollout, the corrected passive monitor's
+pooled native image-fraction MAE was 0.001675 versus 0.000427 for a zero-delta
+persistence baseline, across 15,570 valid feature observations. This is an
+on-policy diagnostic with oracle masks, not a matched event classifier: many
+features are stationary, trajectories are correlated, and grasps/misses/slips
+are not labeled. It does not establish that monitoring can trigger recovery.
+Per-step predictions and observations are kept locally at
+`outputs/libero/oracle/milk_joint_val_sample7_one_step_diagnostics.json`.
+
 ## Separate SAM checks
 
 - The official SAM `assets/images/test_image.jpg` with the notebook's `shoe`
@@ -99,8 +119,10 @@ not establish event discrimination or a recovery trigger.
   the simulator mask used **only for post-hoc scoring**. The box is not a human
   annotation and does not demonstrate autonomous text grounding.
 - A forward tracking probe retained the initialized basket ID on only 3 of 150
-  frames, with mean IoU 0.0194 when missing frames count as zero. Forced tracker
-  propagation gave the same outcome. Prefix-versus-full checks at frames 50 and
+  frames, with mean IoU 0.0194 when missing frames count as zero. A request for
+  forced tracker propagation gave the same outcome because the wrapper did not
+  forward that unsupported flag; it was not a distinct propagation mode.
+  Prefix-versus-full checks at frames 50 and
   100 had zero differing pixels, but both masks were empty, so those checks are
   **vacuous** and do not verify causality. This is not a verified tracking
   episode.
@@ -119,6 +141,12 @@ not establish event discrimination or a recovery trigger.
   initialization and meaningful identity/occlusion and prefix checks remain open.
 
 ### Online human-annotated initialization: DAVIS 2017
+
+**Follow-up:** the stage-by-stage investigation and a diagnostic point-path
+workaround are in `docs/TRACKER_TRACE_REPORT.md`. The original box and point
+failures arose at different stages. The workaround returned masks on all 69
+frames of this one video, but the nonempty prefix/full comparison differed at
+frame 10; it is not validated as a causal production adapter.
 
 The [official DAVIS 2017 download page](https://davischallenge.org/davis2017/code.html)
 provides human-annotated first-frame masks; the

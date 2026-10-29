@@ -14,7 +14,7 @@ app = modal.App("odvla-libero-policy-rollout")
 
 @app.function(image=image, volumes={"/data": volume}, cpu=4, memory=16384, timeout=3600)
 def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int = 7,
-            split: str = "test", sample_seed: int = 7):
+            split: str = "test", sample_seed: int = 7, monitor_dir: str = ""):
     import json
     from pathlib import Path
 
@@ -27,7 +27,8 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
     from odvla.experiment import load_run
     from odvla.inference import predict
     from odvla.measurements import mask_metrics
-    from odvla.diagnostics import accepted_chunk_forecast, summarize_actions
+    from odvla.diagnostics import one_step_forecast, summarize_actions
+    from odvla.one_step import load_one_step
 
     root = Path("/opt/LIBERO")
     config = Path.home() / ".libero" / "config.yaml"
@@ -46,6 +47,7 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
     if policy_config["model"]["context_dim"]:
         raise ValueError("This adapter requires a numeric-only checkpoint")
     model.eval()
+    monitor = load_one_step(monitor_dir, run, policy_config) if monitor_dir else None
     torch.set_num_threads(2)
     manifest = load_manifest("/data/libero/milk_oracle")
     if split not in ("val", "test"):
@@ -114,10 +116,9 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
                 if not np.isfinite(action).all():
                     raise ValueError(f"{entry['id']} step {step}: nonfinite action")
                 bounded = np.clip(action, -1.0, 1.0)
-                accepted_chunk = np.clip(chunk, -1.0, 1.0)
                 forecast = None
-                if not policy_config["no_objects"] and policy_config["dynamics_weight"] > 0:
-                    forecast = accepted_chunk_forecast(prefix, accepted_chunk, model, policy_config, stats)
+                if monitor is not None:
+                    forecast = one_step_forecast(prefix, bounded, model, monitor, policy_config, stats)
                 clipped_steps += int(not np.array_equal(action, bounded))
                 before_features, before_valid = features[-1], valids[-1]
                 obs, _, done, _ = env.step(bounded)
@@ -152,7 +153,8 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
               "initialization": "recorded held-out demonstration initial simulator states",
               "history_bootstrap": "repeat initial robot observation", "max_steps": max_steps,
               "action": "sample new chunk from current observations and execute first action, clipped to [-1,1]",
-              "monitor": "one-step forecast uses the accepted first action and clipped hypothetical remaining chunk; no control intervention",
+              "monitor": ("standalone one-step head receives only current history and accepted first action; no control intervention"
+                          if monitor is not None else "disabled; no trained one-step head supplied"),
               "action_statistics": {"demonstrations": summarize_actions(np.concatenate(all_demos)),
                   "sampled": summarize_actions(sampled), "executed": summarize_actions(executed),
                   "consecutive_executed_delta": summarize_actions(changes),
@@ -163,7 +165,7 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
                   "normalization_std": stats["actions_std"].tolist()},
               "successes": sum(row["success"] for row in results), "episodes": len(results),
               "results": results}
-    destination = Path(f"/data/eval/milk_{variant}_seed{train_seed}_{split}_sample{sample_seed}_diagnostics.json")
+    destination = Path(f"/data/eval/milk_{variant}_seed{train_seed}_{split}_sample{sample_seed}_one_step_diagnostics.json")
     destination.write_text(json.dumps(report, indent=2) + "\n")
     volume.commit()
     return {k: v for k, v in report.items() if k != "results"}
@@ -171,5 +173,5 @@ def rollout(max_steps: int = 200, variant: str = "no_objects", train_seed: int =
 
 @app.local_entrypoint()
 def main(max_steps: int = 200, variant: str = "no_objects", train_seed: int = 7,
-         split: str = "val", sample_seed: int = 7):
-    print(rollout.remote(max_steps, variant, train_seed, split, sample_seed))
+         split: str = "val", sample_seed: int = 7, monitor_dir: str = ""):
+    print(rollout.remote(max_steps, variant, train_seed, split, sample_seed, monitor_dir))
