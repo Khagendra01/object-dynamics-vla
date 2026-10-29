@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 12303,
-      "sha256": "a5a14769d1b906cc7d5f7a579be8a267b5125f3be13e68fb17d66a684633f8af"
+      "bytes": 12428,
+      "sha256": "2d2660601f996ebc75f29e6fef65c8b33ce9e7104118345dd094c66bf42e785c"
     },
     {
       "path": "LICENSE",
@@ -39,8 +39,8 @@
     },
     {
       "path": "docs/DIAGNOSTICS_REPORT.md",
-      "bytes": 10533,
-      "sha256": "1135b9d8c06ee544c76ca179eb6d2c2638d41ebc7af52f69a82d0cb66f9b2d59"
+      "bytes": 11769,
+      "sha256": "ae14d29a08ca67fc4cd6e5228f502e365e4086b540f9e0dc0608edfbb7cfc045"
     },
     {
       "path": "docs/EXECUTION_REPORT.md",
@@ -59,13 +59,13 @@
     },
     {
       "path": "docs/TRACKER_TRACE_REPORT.md",
-      "bytes": 5512,
-      "sha256": "4a62c6672661a998d2f6aad31284e4a48897d9088daf4a6cdc89d348d78b1842"
+      "bytes": 8267,
+      "sha256": "b0b368054a23582ca33e5efb50984c4405ed670f3fd5d0f5368218f7e61d41b8"
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 9416,
-      "sha256": "f0bf6e92a672f145fb294f87d8ede7aa5f3b3695706df45511d2efd2f71fb0da"
+      "bytes": 9428,
+      "sha256": "76a1acc96ca07bad7305493c847bda2340316abdf13e1499c85ee9822eddc7e4"
     },
     {
       "path": "odvla/__init__.py",
@@ -124,8 +124,8 @@
     },
     {
       "path": "odvla/perception.py",
-      "bytes": 1220,
-      "sha256": "454bb0e068ef1af36d7a216c9833438c308c361a9eaf10c2367d2a41349829e7"
+      "bytes": 1788,
+      "sha256": "d8e214c17fd031043a6fe47071e2882b5f7604b46e6141439a909a53fa46ba37"
     },
     {
       "path": "odvla/presentation.py",
@@ -169,8 +169,8 @@
     },
     {
       "path": "scripts/modal_davis_human_init.py",
-      "bytes": 9820,
-      "sha256": "c03b6ac26280b8dbe7e6ef10686227644e957110d1259e72425b5ef7c7a76cff"
+      "bytes": 12686,
+      "sha256": "ff3e3d7d2befed32c567659607f9bdb2d09ed8153a067b91a4fdee9bb428810e"
     },
     {
       "path": "scripts/modal_download_libero_milk.py",
@@ -218,6 +218,11 @@
       "sha256": "bf837ed096121785242935d4234e6bb1121809b4510568201d22127fefee8a81"
     },
     {
+      "path": "scripts/modal_one_step_distribution_eval.py",
+      "bytes": 5502,
+      "sha256": "3f1d32d8efdd5a855c324ecf3fd379592de4ca2f29a08ca5f18238b8c48c07f2"
+    },
+    {
       "path": "scripts/modal_real_ablations.py",
       "bytes": 2821,
       "sha256": "6ba856da3e98f6e1132ce47c8e2d2bb2962e64174f38eea87b9645e3efabdd08"
@@ -248,9 +253,14 @@
       "sha256": "861560606ee832ab1cb98426559aa78e84186307887151bec1631c14d0e19def"
     },
     {
+      "path": "scripts/modal_sam31_repeatability.py",
+      "bytes": 10371,
+      "sha256": "73c761864678a1dca8053ceca7dd874fab7109b586de884e43264470e4aad8f8"
+    },
+    {
       "path": "scripts/modal_sam31_trace.py",
-      "bytes": 14697,
-      "sha256": "2aa62a93642ddc4c14b767d9eb8cb5914a1ae563419439af4b8bf738ae3a582b"
+      "bytes": 14949,
+      "sha256": "34d3a327b6ca00337859e2fc5f98a901dd401eb6435254e17f8981974a219339"
     },
     {
       "path": "scripts/modal_train.py",
@@ -279,8 +289,8 @@
     },
     {
       "path": "tests/test_integrations.py",
-      "bytes": 1986,
-      "sha256": "bf39e30b496a070381dd1be0dd7d64589788fe2d1f2396bb9ffa97b94ecc4141"
+      "bytes": 3034,
+      "sha256": "5c26db307265f1a682d567137a63e2d0be5c7ac1df961efcad1a3d5a1bb0364c"
     },
     {
       "path": "tests/test_training.py",

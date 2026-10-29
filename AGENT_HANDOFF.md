@@ -15,9 +15,10 @@ controller units, frame conventions, model APIs, or benchmark success.
 ## Status after 2026-10-29 execution
 
 `docs/EXECUTION_REPORT.md` has the full evidence. Done on an Intel Mac (CPU) and
-Modal T4/A100: 19 tests, doctor, synthetic smoke and ablations, CLI
+Modal T4/A100: synthetic smoke and ablations, CLI
 audit/replay/predict/evaluate/report, HDF5 fixture import, GPU training, and two
 real LIBERO-Object tasks (50 demos each) downloaded, imported, and audited.
+The latest local automated suite passes 23 tests.
 
 The latest validation-only action, gradient, passive-monitor, and independent
 SAM probes are in `docs/DIAGNOSTICS_REPORT.md`. At frozen milk checkpoints the
@@ -35,9 +36,10 @@ next untouched evaluation requires fresh initializations:
 the original eight test demonstrations have already been evaluated.
 
 The SAM stage trace and narrow missing-cache point-path workaround are documented
-in `docs/TRACKER_TRACE_REPORT.md`. On one DAVIS video the workaround restored all
-69 masks, but the nonempty prefix/full comparison differed by 32 pixels at frame
-10. It is not validated as a causal production adapter. The passive monitor now
+in `docs/TRACKER_TRACE_REPORT.md`. Fresh-container tests across three DAVIS clips
+show identical repeated runs and identical results when same-length future frames
+change, but prefix/full frame-10 masks still differ by 32, 7, and 4 pixels. It
+is not validated as a strictly prefix-consistent production adapter. The passive monitor now
 uses a separately trained one-action head; it does not receive hypothetical later
 actions. Validation and on-policy limitations are in `docs/DIAGNOSTICS_REPORT.md`.
 

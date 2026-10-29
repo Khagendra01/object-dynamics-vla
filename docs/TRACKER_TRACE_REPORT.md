@@ -92,3 +92,46 @@ full-video test, the frame-10 masks differed by 32 pixels; frame 20 matched.
 Both were nonempty. This is not a successful strict prefix-consistency test;
 the observed difference could involve numerical or length-dependent behavior
 and requires controlled repeatability analysis before any causal claim.
+
+## Fresh-process repeatability and future-content controls
+
+`scripts/modal_sam31_repeatability.py` subsequently ran the requested matrix
+on `bike-packing` and two additional DAVIS validation clips, `blackswan` and
+`bmx-trees`, selected in dataset order before viewing their tracking outcomes.
+Each case ran in a **single-use container** with a fresh predictor, fixed seed,
+checkpoint, CUDA/bfloat16 precision and configuration. The second repetition
+ran cases in reverse order. The human-annotation-derived initial point was held
+fixed within each clip; later labels were used only for post-hoc scoring.
+
+For each clip, the first 11 JPEGs were byte-identical across cases. At the same
+full video length, the future was either original, reversed after frame 10, or
+replaced by repeated frame 10; input hashes confirm that future bytes changed.
+The 11-frame prefix was also compared with the full-length input. Frame-10
+288×288 pre-threshold tracker logits and output masks are saved on the Modal
+volume under `/data/eval/sam31_repeatability_v1*`; logits were cast to float32
+for storage, and raw arrays are not public.
+
+| Clip | Frames | Full-video mean IoU | Same-input repeat | Same-length altered future | Prefix vs full: mask pixels / raw-logit sign flips |
+|---|---:|---:|---|---|---:|
+| bike-packing | 69 | 0.6710 | exact | exact | 32 / 4 |
+| blackswan | 50 | 0.9578 | exact | exact | 7 / 3 |
+| bmx-trees | 80 | 0.4463 | exact | exact | 4 / 1 |
+
+The bike-packing IoU is from the earlier full-video workaround run; its matrix
+cases stop after frame 10. The other two IoUs come from their matrix full runs.
+On all three clips, both repeated fresh runs of each case were bit-identical
+for frame-10 logits and binary masks; both changed-future cases also exactly
+matched the original full-length case. Prefix-vs-full raw-logit max/mean absolute
+differences were 0.625/0.0325, 0.375/0.0521, and 1.0/0.0625 respectively.
+Thus the observed differences are repeatable and associated with sequence
+length or a related processing condition in this setup, not the tested future
+image substitutions. This does not identify the underlying cause or prove
+independence from every possible future input.
+
+The partial point path emitted frame 10 after processing frames 0–10 in every
+case, within its normal loop, not a postprocess-buffer flush. In the prefix case
+frame 10 was also the final input frame; in the full and altered-future cases it
+was nonterminal. The prefix/full lengths still produced nonidentical logits and
+masks, so this is **not yet strict prefix consistency** or proof of a live
+appendable online adapter. The scores above are one object per video and do not
+establish LIBERO performance, robust occlusion handling, or autonomous grounding.

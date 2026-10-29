@@ -66,6 +66,57 @@ def acquire():
     return metadata
 
 
+@app.function(image=download_image, volumes={"/data": volume}, cpu=4, memory=8192, timeout=1800)
+def acquire_more():
+    """Select the next two validation videos in source order before inspecting results."""
+    import hashlib
+    import json
+    import tempfile
+    import urllib.request
+    from pathlib import Path
+    import pyarrow.parquet as pq
+
+    revision = "ea8f94b3c5681836c11ec2de2d94492a819818a9"
+    expected = "da2063a05e451f4997993d6fca35dfee64a029c6e476330a5bbe0b51286d93a4"
+    url = (f"https://huggingface.co/datasets/shijli/davis2017/resolve/{revision}/"
+           "semi-supervised/validation-00000-of-00001.parquet")
+    with tempfile.TemporaryDirectory() as temp:
+        parquet = Path(temp) / "validation.parquet"
+        digest = hashlib.sha256()
+        with urllib.request.urlopen(url, timeout=120) as source, parquet.open("wb") as out:
+            while chunk := source.read(1024 * 1024):
+                digest.update(chunk)
+                out.write(chunk)
+        if digest.hexdigest() != expected:
+            raise ValueError("DAVIS parquet checksum mismatch")
+        table = pq.read_table(parquet, columns=["video", "frame", "image", "mask"])
+        rows = table.to_pylist()
+        names = list(dict.fromkeys(row["video"] for row in rows))[:3]
+        if names[0] != "bike-packing" or len(names) != 3:
+            raise ValueError("Unexpected validation source ordering")
+        output = []
+        for index, name in enumerate(names[1:], 1):
+            selected = sorted((r for r in rows if r["video"] == name), key=lambda r: r["frame"])
+            root = Path(f"/data/davis2017/human_init_extra_{index}")
+            if root.exists() and any(root.iterdir()):
+                raise FileExistsError(f"Refusing to overwrite {root}")
+            (root / "frames").mkdir(parents=True)
+            (root / "masks").mkdir()
+            for i, row in enumerate(selected):
+                if row["frame"] != i:
+                    raise ValueError(f"Noncontiguous frames for {name}")
+                (root / "frames" / f"{i:06}.jpg").write_bytes(row["image"]["bytes"])
+                (root / "masks" / f"{i:06}.png").write_bytes(row["mask"]["bytes"])
+            meta = {"source": "shijli/davis2017 semi-supervised validation, repacked official DAVIS 2017",
+                    "revision": revision, "parquet_sha256": expected, "license": "CC BY-NC 4.0",
+                    "video": name, "frames": len(selected), "selection": "source order, before tracking results",
+                    "annotation": "first-frame human annotation; later annotations evaluation only"}
+            (root / "metadata.json").write_text(json.dumps(meta, indent=2) + "\n")
+            output.append({"root": str(root), **meta})
+    volume.commit()
+    return output
+
+
 @app.function(image=inference_image, gpu="A100-80GB", volumes={"/data": volume}, timeout=3600)
 def track(point_workaround: bool = False):
     import json
@@ -75,6 +126,7 @@ def track(point_workaround: bool = False):
     from pathlib import Path
     import numpy as np
     from PIL import Image
+    from odvla.perception import merge_refined_masks
     from sam3.model_builder import build_sam3_multiplex_video_predictor
     sys.path.insert(0, "/root")
     from extract_sam31 import _patch_multiplex_init_state
@@ -120,9 +172,8 @@ def track(point_workaround: bool = False):
                 if point_workaround:
                     target = 1
                     def merge(state, frame_idx, refined_obj_id_to_mask=None):
-                        if frame_idx not in state["cached_frame_outputs"] and refined_obj_id_to_mask is not None:
-                            return dict(refined_obj_id_to_mask)
-                        return original_build(state, frame_idx, refined_obj_id_to_mask)
+                        return merge_refined_masks(state["cached_frame_outputs"].get(frame_idx),
+                                                   refined_obj_id_to_mask)
                     model.model._build_sam2_output = merge
                 else:
                     initial_ids = np.asarray(initial["out_obj_ids"])
@@ -172,6 +223,9 @@ def track(point_workaround: bool = False):
 
 
 @app.local_entrypoint()
-def main(point_workaround: bool = False):
+def main(point_workaround: bool = False, acquire_extra: bool = False):
+    if acquire_extra:
+        print("Additional clips:", acquire_more.remote())
+        return
     print("Acquired:", acquire.remote())
     print("Tracking:", track.remote(point_workaround))

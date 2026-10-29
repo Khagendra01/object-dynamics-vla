@@ -27,6 +27,7 @@ def trace():
     import numpy as np
     import torch
     from PIL import Image
+    from odvla.perception import merge_refined_masks
     from sam3.model_builder import build_sam3_multiplex_video_predictor
     sys.path.insert(0, "/root")
     from extract_sam31 import _patch_multiplex_init_state
@@ -152,7 +153,10 @@ def trace():
                 workaround = (path == "wrapper_missing_cache_workaround" and
                               progress["phase"] == "propagation" and not cache_present and
                               refined_obj_id_to_mask is not None)
-                result = dict(refined_obj_id_to_mask) if workaround else original_build(state, frame_idx, refined_obj_id_to_mask)
+                if path == "wrapper_missing_cache_workaround" and progress["phase"] == "propagation":
+                    result = merge_refined_masks(state["cached_frame_outputs"].get(frame_idx), refined_obj_id_to_mask)
+                else:
+                    result = original_build(state, frame_idx, refined_obj_id_to_mask)
                 events.append({"stage": "cache_merge", "phase": progress["phase"], "frame": int(frame_idx),
                                "processed": progress["processed"], "cache_present": cache_present,
                                "refined_ids": refined_ids, "output_ids": sorted(int(x) for x in result),

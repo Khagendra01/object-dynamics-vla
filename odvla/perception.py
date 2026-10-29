@@ -8,6 +8,21 @@ def as_numpy(value):
     return np.asarray(value)
 
 
+def merge_refined_masks(cached, refined):
+    """Merge tracker refinements without discarding them when cache is absent.
+
+    ``None`` and empty mappings mean no objects. A present object with a None
+    mask is invalid; an all-zero mask is retained for downstream filtering.
+    Inputs are not mutated.
+    """
+    result = dict(cached) if cached is not None else {}
+    for obj_id, mask in (refined or {}).items():
+        if mask is None:
+            raise ValueError(f"Refinement for object {obj_id} has no mask")
+        result[obj_id] = mask
+    return result
+
+
 def unique_mask(outputs, shape):
     """Accept exactly one nonempty instance; never silently union multiple objects.
 

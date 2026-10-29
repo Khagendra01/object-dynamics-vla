@@ -109,6 +109,25 @@ are not labeled. It does not establish that monitoring can trigger recovery.
 Per-step predictions and observations are kept locally at
 `outputs/libero/oracle/milk_joint_val_sample7_one_step_diagnostics.json`.
 
+The follow-up compared the same frozen head with persistence separately on
+validation demonstrations and on policy-generated validation trajectories
+(sampling schedules 7 and 19). A predeclared exploratory motion proxy classifies
+an object-step as moving if any valid image-fraction delta exceeds 0.002. Mean
+absolute errors in image-fraction units:
+
+| Source | All: head / persistence | Moving objects: head / persistence | Stationary objects: head / persistence |
+|---|---:|---:|---:|
+| Validation demonstrations | 0.001010 / 0.001211 | 0.002061 / 0.003470 | 0.000483 / 0.000078 |
+| Policy schedule 7 | 0.001675 / 0.000427 | 0.002440 / 0.002941 | 0.001560 / 0.000050 |
+| Policy schedule 19 | 0.002141 / 0.000454 | 0.002706 / 0.003845 | 0.002068 / 0.000020 |
+
+The head beat persistence on this motion proxy, while its stationary predictions
+were worse; stationary object-steps dominated the policy traces. The same eight
+validation initializations recur across schedules, and validation also selected
+the monitor checkpoint. These are not independent test trials, labeled grasps,
+misses, or slips. `/data/eval/milk_one_step_distribution_val.json` contains
+per-episode breakdowns and normalized MSE. No new held-out test was accessed.
+
 ## Separate SAM checks
 
 - The official SAM `assets/images/test_image.jpg` with the notebook's `shoe`

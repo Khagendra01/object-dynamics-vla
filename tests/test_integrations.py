@@ -5,6 +5,25 @@ from odvla.perception import unique_mask
 
 
 class IntegrationContractTests(unittest.TestCase):
+    def test_refined_mask_merge_handles_missing_and_existing_cache(self):
+        from odvla.perception import merge_refined_masks
+        cached = {1: np.ones((2, 2), dtype=bool), 2: np.zeros((2, 2), dtype=bool)}
+        replacement = np.array([[True, False], [False, False]])
+        new = np.array([[False, True], [False, False]])
+        self.assertIs(merge_refined_masks(None, {3: new})[3], new)
+        merged = merge_refined_masks(cached, {1: replacement, 3: new})
+        self.assertIs(merged[1], replacement)
+        self.assertIs(merged[2], cached[2])
+        self.assertIs(merged[3], new)
+        self.assertIsNot(merged, cached)
+        self.assertTrue(cached[1].all())
+        self.assertEqual(merge_refined_masks(None, None), {})
+        self.assertEqual(merge_refined_masks({}, {}), {})
+        self.assertIs(merge_refined_masks(cached, None)[1], cached[1])
+        self.assertIs(merge_refined_masks(None, {9: cached[2]})[9], cached[2])
+        with self.assertRaises(ValueError):
+            merge_refined_masks(cached, {1: None})
+
     def test_ambiguous_instances_are_missing(self):
         masks = np.ones((2, 10, 20), bool)
         mask, status = unique_mask({"out_binary_masks": masks}, (10, 20))
