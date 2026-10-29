@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+data/
+runs/
+outputs/
+examples/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+.DS_Store
+.pytest_cache/

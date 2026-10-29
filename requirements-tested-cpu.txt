@@ -1,0 +1,6 @@
+# Reproduce the CPU verification environment; not the RTX 5090 environment.
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy==2.3.5
+Pillow==12.3.0
+h5py==3.16.0
+torch==2.15.0+cpu
