@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 13806,
-      "sha256": "133ee58d0e273f439479234e71882699367968fc03d66b7b9baf3d186f06b4ce"
+      "bytes": 14278,
+      "sha256": "752b31710294348e2066eeb2f56aa5ff74531fd9177f3a13d6d0e461e049a737"
     },
     {
       "path": "LICENSE",
@@ -24,8 +24,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13417,
-      "sha256": "bbd1d237fe7a7543517cecff8bca78463f039505773081ea4783e0a6b04b3e67"
+      "bytes": 13564,
+      "sha256": "93dbda5e498beb828953b25267bae3d98de95e3eb22cfc83769ca2e60b80ad55"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -66,6 +66,11 @@
       "path": "docs/TRACKER_TRACE_REPORT.md",
       "bytes": 11591,
       "sha256": "ec74047ecc1a598482a6540109e996dfa3eefcace38108fa998c1fd5478b7c1e"
+    },
+    {
+      "path": "docs/TWO_OBJECT_VALIDATION.md",
+      "bytes": 4789,
+      "sha256": "1abc3592b5d1e92fde9df884ac38d2d356bcedf1f01366d188a23df863e57b44"
     },
     {
       "path": "docs/VALIDATION.md",
@@ -281,6 +286,11 @@
       "path": "scripts/modal_sam31_trace.py",
       "bytes": 14949,
       "sha256": "34d3a327b6ca00337859e2fc5f98a901dd401eb6435254e17f8981974a219339"
+    },
+    {
+      "path": "scripts/modal_sam31_two_object_validation.py",
+      "bytes": 8496,
+      "sha256": "835367fbfb0280a66e2088e9b5f4619ad0bcf7e9e01aeee41f62d15ee0859c8f"
     },
     {
       "path": "scripts/modal_train.py",

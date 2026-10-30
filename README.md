@@ -28,6 +28,8 @@ Open these files before installing anything:
   timing, and the diagnostic point-path workaround.
 - `docs/CAMERA_PILOT_REPORT.md`: bounded memory audit and one initialized
   LIBERO RGB tracking episode, including numerical measurement jitter.
+- `docs/TWO_OBJECT_VALIDATION.md`: simultaneous milk/basket tracking and
+  measurement checks across three initialized LIBERO validation episodes.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 

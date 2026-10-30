@@ -63,6 +63,13 @@ not acquired live; no general online-causality guarantee is claimed. The next
 policy comparison must train both variants on the same SAM measurements, and
 this validation initialization is no longer untouched.
 
+Subsequently `docs/TWO_OBJECT_VALIDATION.md` reports simultaneous milk and
+basket point tracking on validation episodes 0014, 0020 and 0022. All outputs
+were nonempty, milk mean IoU ranged 0.9265–0.9685, basket 0.9599–0.9788, and
+the other target never had higher reference IoU. These nearly identical scenes
+use visually selected points and full-video preload, not autonomous grounding or
+validated live operation; all three validation initializations are now used.
+
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced
 296 missing and zero observed masks. Do not repeat that extraction or attach the
