@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 14814,
-      "sha256": "96bc9d07cbcd415d8963910db8030de9bcbbcc70bb402df05bee834d5ba08a8b"
+      "bytes": 15285,
+      "sha256": "faf2093fb58fb601aa94dde16e1e3950a021a9305de2263f9f0c1daf9869d598"
     },
     {
       "path": "LICENSE",
@@ -24,8 +24,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13696,
-      "sha256": "e7e09b13f48caf997af4c37e36483f21cfcaa804608bb5f5943306a4f0fde8d1"
+      "bytes": 13824,
+      "sha256": "c3adafc2f6ddc1008cd19edeef5b764b5b882ad5ab35acacb52422e264c7ea5a"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -63,6 +63,11 @@
       "sha256": "28ca18e094a93d820f3dfaa2da4bb7de640bc056bcd6aa23c23d649158aa2184"
     },
     {
+      "path": "docs/SAM_CLOSED_LOOP_PILOT.md",
+      "bytes": 4999,
+      "sha256": "2a3c2c4894ac2a7f1aa160a4c599c9e968046a9b46edb241b3c3de69377a658f"
+    },
+    {
       "path": "docs/SOURCES.md",
       "bytes": 1927,
       "sha256": "4f9572fae40d9f5838bc42b17f816597e5aefa3d683919d412cb003a22d77dfd"
@@ -80,7 +85,7 @@
     {
       "path": "docs/VALIDATION.md",
       "bytes": 9494,
-      "sha256": "cebb571edd230f3d759ce6698227ce6e1891bca9bba6b5013159f3f4b11264c0"
+      "sha256": "d53d950cfa902f645949c7fa4d6087789460f2494d00afd992e9f1494555fcc8"
     },
     {
       "path": "odvla/__init__.py",
@@ -124,8 +129,8 @@
     },
     {
       "path": "odvla/inference.py",
-      "bytes": 1459,
-      "sha256": "f1423cfceda9cbc48029a060b8f75cf1fc0912bcc5c027a2119ca89c229a0aa6"
+      "bytes": 1720,
+      "sha256": "382dfb89fa689e80ee020cd19e8d8f3bdd997e32f5f9fd3f77770bf96c164c8f"
     },
     {
       "path": "odvla/measurements.py",
@@ -151,6 +156,11 @@
       "path": "odvla/presentation.py",
       "bytes": 4718,
       "sha256": "16b96a3a753fe70a8795fe71bc1d46f34d952a56b4be895c7a72d1d677d21b3b"
+    },
+    {
+      "path": "odvla/sam_prefix.py",
+      "bytes": 2605,
+      "sha256": "d7aa7fbd14255963d47d4e61d9526b6a69a4b159686ffa0e7857b8a64748aa9c"
     },
     {
       "path": "odvla/synthetic.py",
@@ -201,6 +211,11 @@
       "path": "scripts/modal_download_libero_milk.py",
       "bytes": 1480,
       "sha256": "92ba49fdd414f824e87c531a10fa61a3819c182db01683712b3603a6894977fa"
+    },
+    {
+      "path": "scripts/modal_first_action_eval.py",
+      "bytes": 3225,
+      "sha256": "e15881a8c6726f9c47e33c19686d891775d7a55ecf33b2e9da6eb1991d58e0e4"
     },
     {
       "path": "scripts/modal_gradient_diagnostics.py",
@@ -328,6 +343,16 @@
       "sha256": "835367fbfb0280a66e2088e9b5f4619ad0bcf7e9e01aeee41f62d15ee0859c8f"
     },
     {
+      "path": "scripts/modal_sam_closed_loop_pilot.py",
+      "bytes": 11294,
+      "sha256": "c6adb4b053bdf4897e7524f38ee53fd9c7c5f842e8437c7f5feb512b6412cc6d"
+    },
+    {
+      "path": "scripts/modal_sam_prefix_benchmark.py",
+      "bytes": 3594,
+      "sha256": "f23b4e87b02d795c42d00f7603be3bba4091dcd8b53dd8f2b6613cadaf31e0d3"
+    },
+    {
       "path": "scripts/modal_train.py",
       "bytes": 1665,
       "sha256": "97dab981bc6dcf75b5df8288c08744d94f6722717aacbcd350ac4251152bb130"
@@ -363,9 +388,14 @@
       "sha256": "0f19a1ebd378a0d93ad53e0eecf2a0d7d90cc03b377b57de1c100101b560f380"
     },
     {
+      "path": "tests/test_sam_prefix.py",
+      "bytes": 1992,
+      "sha256": "4656441628b81313a7a191a7a9efc530a6183ed84436743be6317ca5e49b8afb"
+    },
+    {
       "path": "tests/test_training.py",
-      "bytes": 4618,
-      "sha256": "86195e58cd80cf187567179ac3f6682616192de8e02b01dacb9a8a3ab50fe3ea"
+      "bytes": 4991,
+      "sha256": "a3bb157bb051abf57f566f6cfdeb71c3650f2dae9fa7677b636ae61ed78e81c3"
     }
   ]
 }

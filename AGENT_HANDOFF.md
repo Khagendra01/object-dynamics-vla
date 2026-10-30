@@ -18,7 +18,7 @@ controller units, frame conventions, model APIs, or benchmark success.
 Modal T4/A100: synthetic smoke and ablations, CLI
 audit/replay/predict/evaluate/report, HDF5 fixture import, GPU training, and two
 real LIBERO-Object tasks (50 demos each) downloaded, imported, and audited.
-The latest local automated suite passes 27 tests.
+The latest local automated suite passes 28 tests.
 
 The latest validation-only action, gradient, passive-monitor, and independent
 SAM probes are in `docs/DIAGNOSTICS_REPORT.md`. At frozen milk checkpoints the
@@ -77,6 +77,13 @@ dynamics modestly beat action-free on validation normalized MSE, but not
 persistence on stationary subsets. Matched policy training showed small offline
 action-MSE improvements in three paired seeds. No SAM closed-loop rollout was
 performed because the current adapter cannot append live frames.
+
+`docs/SAM_CLOSED_LOOP_PILOT.md` supersedes that last rollout blocker for a slow
+reference path: prefix replay matched the cache at nine sampled lengths. A
+30-step paired seed-7 run on reused validation episode 0014 used only RGB-derived
+SAM masks and paired sampling, with no missing IDs or task success. It is not a
+full-horizon success comparison, is not real-time, and used repeated initial
+history. First-action channelwise errors and clipping are documented there.
 
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced

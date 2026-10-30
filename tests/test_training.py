@@ -57,6 +57,10 @@ class TrainingTests(unittest.TestCase):
             m = load_manifest(ds); ep = load_episode(ds, m["episodes"][0], m)
             prefix = {k: ep[k][:8] for k in ("features", "valid", "robot", "timestamps", "context")}
             result = predict(prefix, model, cfg, stats)
+            with torch.autocast(device_type="cpu", dtype=torch.bfloat16):
+                autocast_result = predict(prefix, model, cfg, stats)
+            np.testing.assert_allclose(result["actions_source_units"], autocast_result["actions_source_units"])
+            np.testing.assert_allclose(result["predicted_numeric_delta"], autocast_result["predicted_numeric_delta"])
             self.assertEqual(np.asarray(result["actions_source_units"]).shape, (4, 2))
             self.assertEqual(result["execution_status"], "not executed; no robot driver included")
 

@@ -32,6 +32,8 @@ Open these files before installing anything:
   measurement checks across three initialized LIBERO validation episodes.
 - `docs/MILK_SAM_DEVELOPMENT.md`: dataset-level shared SAM measurements,
   one-step dynamics and paired offline policy comparisons.
+- `docs/SAM_CLOSED_LOOP_PILOT.md`: prefix-only replay benchmark, first-action
+  diagnostics and a short paired simulator pilot.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 
