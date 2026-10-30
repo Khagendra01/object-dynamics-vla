@@ -25,11 +25,12 @@ app = modal.App("odvla-sam-closed-loop-pilot")
 
 
 @app.function(image=image, gpu="A100-80GB", cpu=4, memory=32768, volumes={"/data": volume},
-              timeout=3600, single_use_containers=True)
-def pilot(max_steps: int = 30):
+              timeout=14400, single_use_containers=True)
+def pilot(max_steps: int = 200):
     import hashlib
     import json
     import sys
+    import subprocess
     import tempfile
     import time
     from pathlib import Path
@@ -46,11 +47,11 @@ def pilot(max_steps: int = 30):
     sys.path.insert(0, "/root")
     from extract_sam31 import _patch_multiplex_init_state
 
-    if not 1 <= max_steps <= 30:
-        raise ValueError("This bounded pilot permits 1–30 steps")
+    if not 1 <= max_steps <= 200:
+        raise ValueError("This development pilot permits 1–200 steps")
     if not json.loads(Path("/data/eval/milk_sam_prefix_benchmark_v1.json").read_text())["all_matched"]:
         raise ValueError("Prefix/cache benchmark did not pass")
-    dest = Path("/data/eval/milk_sam_closed_loop_pilot_v2")
+    dest = Path("/data/eval/milk_sam_closed_loop_200_v1")
     if dest.exists():
         raise FileExistsError("Refusing to overwrite pilot")
     cfg = json.loads(Path("/root/sam31_milk_development_config.json").read_text())
@@ -113,8 +114,15 @@ def pilot(max_steps: int = 30):
                     Image.fromarray(rgb).save(file, quality=98)
                     if step == 0:
                         initial_rgb_sha = file_hash(file)
-                    masks, ids = replay_current(tracker, folder, step + 1,
-                        cfg["first_frame_points_xy_pixels_512"], cfg["object_ids"])
+                    try:
+                        masks, ids = replay_current(tracker, folder, step + 1,
+                            cfg["first_frame_points_xy_pixels_512"], cfg["object_ids"])
+                    except Exception as exc:
+                        failure = f"tracking exception before action: {type(exc).__name__}: {exc}"
+                        traces.append({"step": step, "tracking_failure": True, "error": failure,
+                                       "tracking_seconds": time.monotonic() - started})
+                        frames.append(rgb.copy())
+                        break
                     values, valid = mask_metrics(masks[None])
                     present = masks.any(axis=(1, 2))
                     frame = {"step": step, "id_status": ids.tolist(), "nonempty": present.tolist(),
@@ -146,26 +154,40 @@ def pilot(max_steps: int = 30):
                         "executed_action": accepted.tolist(), "clipped_channels": (action != accepted).tolist(),
                         "success": success, "done": bool(done)})
                     traces.append(frame)
+                    if (step + 1) % 10 == 0:
+                        print(json.dumps({"variant": variant, "completed_steps": step + 1,
+                                          "latest_tracking_seconds": frame["tracking_seconds"]}), flush=True)
                     if success or done:
                         break
+                # Include the observation after the final executed action in the video.
+                if traces and "executed_action" in traces[-1]:
+                    env.sim.forward()
+                    final_rgb = np.asarray(env.sim.render(camera_name="agentview", width=512, height=512))
+                    Image.fromarray(final_rgb).save(folder / f"{len(frames):06}.jpg", quality=98)
+                subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", "20", "-i",
+                    str(folder / "%06d.jpg"), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                    str(dest / f"{variant}.mp4")], check=True)
             finally:
                 env.close()
-        np.savez_compressed(dest / f"{variant}_masks.npz", masks=np.stack(all_masks))
-        selected = sorted(set((0, len(frames) // 2, len(frames) - 1)))
-        montage = Image.new("RGB", (512 * len(selected), 540), "white")
-        draw = ImageDraw.Draw(montage)
-        for col, idx in enumerate(selected):
-            rgb = frames[idx].copy()
-            for slot, color in enumerate(([255, 0, 0], [0, 255, 255])):
-                mask = np.asarray(Image.fromarray(all_masks[idx][slot].astype(np.uint8)).resize((512, 512), Image.Resampling.NEAREST), bool)
-                rgb[mask] = (.6 * rgb[mask] + .4 * np.asarray(color)).astype(np.uint8)
-            montage.paste(Image.fromarray(rgb), (512 * col, 28))
-            draw.text((512 * col + 4, 5), f"{variant} step {idx}: red milk, cyan basket", fill="black")
-        montage.save(dest / f"{variant}_review.png")
+        np.savez_compressed(dest / f"{variant}_masks.npz", masks=np.stack(all_masks) if all_masks else np.zeros((0, 2, 128, 128), bool))
+        selected = sorted(set((0, len(all_masks) // 2, len(all_masks) - 1))) if all_masks else []
+        if selected:
+            montage = Image.new("RGB", (512 * len(selected), 540), "white")
+            draw = ImageDraw.Draw(montage)
+            for col, idx in enumerate(selected):
+                rgb = frames[idx].copy()
+                for slot, color in enumerate(([255, 0, 0], [0, 255, 255])):
+                    mask = np.asarray(Image.fromarray(all_masks[idx][slot].astype(np.uint8)).resize((512, 512), Image.Resampling.NEAREST), bool)
+                    rgb[mask] = (.6 * rgb[mask] + .4 * np.asarray(color)).astype(np.uint8)
+                montage.paste(Image.fromarray(rgb), (512 * col, 28))
+                draw.text((512 * col + 4, 5), f"{variant} step {idx}: red milk, cyan basket", fill="black")
+            montage.save(dest / f"{variant}_review.png")
         results.append({"variant": variant, "train_seed": 7, "policy_checkpoint_sha256": file_hash(run / "weights.pt"),
             "initial_rgb_sha256": initial_rgb_sha, "initial_state_sha256": state_sha,
             "executed_steps": sum("executed_action" in t for t in traces), "success": success,
             "tracking_failure": failure, "trace": traces})
+        (dest / f"{variant}_report.json").write_text(json.dumps(results[-1], indent=2, allow_nan=False) + "\n")
+        volume.commit()
     result = {"episode": episode, "source_demo": "demo_21", "split": "reused validation development",
         "max_steps": max_steps, "simulated_control_hz": 20, "initialization": "frozen RGB points",
         "perception": "fresh SAM session with observed prefix only; no oracle masks",
@@ -180,5 +202,5 @@ def pilot(max_steps: int = 30):
 
 
 @app.local_entrypoint()
-def main(max_steps: int = 30):
+def main(max_steps: int = 200):
     print(pilot.remote(max_steps))
