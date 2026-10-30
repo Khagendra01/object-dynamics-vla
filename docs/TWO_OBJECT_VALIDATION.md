@@ -36,6 +36,14 @@ episodes. Four regularly spaced overlay frames per episode were visually
 inspected for both objects; the smaller minimum IoU in episode 0022 is not
 necessarily at one of those sampled frames.
 
+Follow-up inspection of the saved masks found the first worst milk frame in
+episode 0022 at frame 28 (IoU 0.745098; frame 29 is tied). Neighboring IoUs at
+frames 26–30 are 0.789474, 0.763158, 0.745098, 0.745098 and 0.745098. In the
+RGB overlays at frames 27–29, the prediction remains on the carton but has a
+persistent narrow disagreement inside its visible silhouette; it is not an
+obvious switch to the basket. These observations do not establish the cause of
+the disagreement, and use the 128-pixel scoring raster.
+
 Mean absolute geometry errors use image-fraction units and only valid pairs;
 all frames were valid and all consecutive pairs were valid here. The five
 components are centroid u/v, bbox width/height, and visible area. Frame-delta

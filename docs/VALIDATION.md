@@ -44,8 +44,9 @@ torch 2.2.2, CPU only) and on Modal. Summary:
 
 ## Automated tests
 
-`python -m unittest discover -s tests -v`: **26 passed, zero skipped** after the
-follow-up monitor, cache-merge, temporal-probe, and experimental-adapter tests. Historical local
+`python -m unittest discover -s tests -v`: **27 passed, zero skipped** after the
+follow-up monitor, cache-merge, temporal-probe, experimental-adapter, and
+development-only training tests. Historical local
 `examples/` logs are not bundled in the public repository.
 
 Tests cover group-disjoint splits, deterministic splitting, dataset-change

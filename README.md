@@ -30,6 +30,8 @@ Open these files before installing anything:
   LIBERO RGB tracking episode, including numerical measurement jitter.
 - `docs/TWO_OBJECT_VALIDATION.md`: simultaneous milk/basket tracking and
   measurement checks across three initialized LIBERO validation episodes.
+- `docs/MILK_SAM_DEVELOPMENT.md`: dataset-level shared SAM measurements,
+  one-step dynamics and paired offline policy comparisons.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 

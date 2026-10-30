@@ -120,7 +120,7 @@ def validate_splits(root, splits):
     by_id = {e["id"]: e for e in m["episodes"]}
     for split in ("train", "val", "test"):
         ids = splits[split]
-        if not ids or len(ids) != len(set(ids)) or all_ids.intersection(ids):
+        if (not ids and not (split == "test" and splits.get("allow_empty_test") is True)) or len(ids) != len(set(ids)) or all_ids.intersection(ids):
             raise ValueError("Empty, duplicated, or overlapping episode split")
         if not set(ids) <= by_id.keys():
             raise ValueError("Unknown episode ID in split")

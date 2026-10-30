@@ -18,7 +18,7 @@ controller units, frame conventions, model APIs, or benchmark success.
 Modal T4/A100: synthetic smoke and ablations, CLI
 audit/replay/predict/evaluate/report, HDF5 fixture import, GPU training, and two
 real LIBERO-Object tasks (50 demos each) downloaded, imported, and audited.
-The latest local automated suite passes 26 tests.
+The latest local automated suite passes 27 tests.
 
 The latest validation-only action, gradient, passive-monitor, and independent
 SAM probes are in `docs/DIAGNOSTICS_REPORT.md`. At frozen milk checkpoints the
@@ -69,6 +69,14 @@ were nonempty, milk mean IoU ranged 0.9265–0.9685, basket 0.9599–0.9788, and
 the other target never had higher reference IoU. These nearly identical scenes
 use visually selected points and full-video preload, not autonomous grounding or
 validated live operation; all three validation initializations are now used.
+
+The 42-episode dataset-level SAM experiment is in `docs/MILK_SAM_DEVELOPMENT.md`.
+Both slots are cached for 6,098 frames; checkpoint selection and scoring use the
+same development split, with test excluded. Action-conditioned one-step SAM
+dynamics modestly beat action-free on validation normalized MSE, but not
+persistence on stationary subsets. Matched policy training showed small offline
+action-MSE improvements in three paired seeds. No SAM closed-loop rollout was
+performed because the current adapter cannot append live frames.
 
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced

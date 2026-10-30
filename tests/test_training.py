@@ -60,5 +60,32 @@ class TrainingTests(unittest.TestCase):
             self.assertEqual(np.asarray(result["actions_source_units"]).shape, (4, 2))
             self.assertEqual(result["execution_status"], "not executed; no robot driver included")
 
+    def test_development_only_experimental_perception_is_explicit(self):
+        from odvla.data import validate_splits
+        from odvla.experiment import train
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); ds = root / "ds"
+            generate(ds, episodes=10, steps=24)
+            manifest = read_json(ds / "manifest.json")
+            manifest["perception"] = {"causal": False, "experimental_prefix_audited": True}
+            write_json(ds / "manifest.json", manifest)
+            splits = make_splits(ds)
+            splits["train"].extend(splits["test"])
+            splits["test"] = []
+            with self.assertRaises(ValueError):
+                validate_splits(ds, splits)
+            splits["allow_empty_test"] = True
+            validate_splits(ds, splits)
+            path = root / "splits.json"; write_json(path, splits)
+            with self.assertRaises(ValueError):
+                train(ds, path, root / "blocked", epochs=1, hidden=16)
+            run = root / "run"
+            train(ds, path, run, epochs=1, hidden=16, allow_experimental_perception=True,
+                  checkpoint_selection="flow")
+            config = read_json(run / "config.json")
+            best = read_json(run / "best_validation.json")
+            self.assertEqual(config["checkpoint_selection"], "flow")
+            self.assertAlmostEqual(best["selection_objective"], best["metrics"]["flow_mse"])
+
 
 if __name__ == "__main__": unittest.main()

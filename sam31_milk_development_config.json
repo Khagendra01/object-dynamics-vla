@@ -1,0 +1,21 @@
+{
+  "name": "sam31_milk_development_v1",
+  "status": "experimental; bounded prefix checks, not validated live or generally causal",
+  "sam_source_revision": "f1647e8d0c1d280991f4d1b7d974c2704537fe66",
+  "checkpoint_sha256": "0567debeec80ba4ac6369540c6c248025283cb3ff2b92827509e57e2b3541cb6",
+  "libero_revision": "8f1084e3132a39270c3a13ebe37270a43ece2a01",
+  "source_hdf5_sha256": "e56d954928e613f9db58085b7677ccf9c4824f1ab982265f71405d5bb14cfb4a",
+  "objects_in_order": ["milk", "basket"],
+  "object_ids": [1, 2],
+  "first_frame_points_xy_pixels_512": [[128, 277], [410, 210]],
+  "initialization": "fixed RGB-inspected points; no simulator masks used for initialization",
+  "image_source": "MuJoCo recorded-state re-rendered 512x512 agentview JPEG quality 98",
+  "fps": 20,
+  "output_mask_grid": [128, 128],
+  "mask_resize": "nearest neighbor",
+  "adapter": {"missing_cache_merge": true, "pointer_scale_from_configured_max": true, "past_only_pointers": true, "detector_prefetch_disabled": true, "forward_only": true, "real_sequence_length_preserved": true},
+  "settings": {"seed": 2468, "tf32": false, "use_fa3": false, "compile": false, "warm_up": false, "async_loading_frames": false, "output_prob_thresh": 0.0},
+  "split": "existing milk seed-17 train and validation only; eight reused test episodes excluded",
+  "reference_use": "simulator masks reserved for post-hoc scoring only",
+  "filtering": "none"
+}

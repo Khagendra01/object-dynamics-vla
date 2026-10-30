@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 14278,
-      "sha256": "752b31710294348e2066eeb2f56aa5ff74531fd9177f3a13d6d0e461e049a737"
+      "bytes": 14814,
+      "sha256": "96bc9d07cbcd415d8963910db8030de9bcbbcc70bb402df05bee834d5ba08a8b"
     },
     {
       "path": "LICENSE",
@@ -24,8 +24,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13564,
-      "sha256": "93dbda5e498beb828953b25267bae3d98de95e3eb22cfc83769ca2e60b80ad55"
+      "bytes": 13696,
+      "sha256": "e7e09b13f48caf997af4c37e36483f21cfcaa804608bb5f5943306a4f0fde8d1"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -58,6 +58,11 @@
       "sha256": "723ec4b74b13fde1aa8271f6ec861205bdbb55f644bf1441cb4720ff376dee03"
     },
     {
+      "path": "docs/MILK_SAM_DEVELOPMENT.md",
+      "bytes": 6399,
+      "sha256": "28ca18e094a93d820f3dfaa2da4bb7de640bc056bcd6aa23c23d649158aa2184"
+    },
+    {
       "path": "docs/SOURCES.md",
       "bytes": 1927,
       "sha256": "4f9572fae40d9f5838bc42b17f816597e5aefa3d683919d412cb003a22d77dfd"
@@ -69,13 +74,13 @@
     },
     {
       "path": "docs/TWO_OBJECT_VALIDATION.md",
-      "bytes": 4789,
-      "sha256": "1abc3592b5d1e92fde9df884ac38d2d356bcedf1f01366d188a23df863e57b44"
+      "bytes": 5313,
+      "sha256": "edf541191759c5b58017e071070631de468128ef849879ae2f812db71f716289"
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 9467,
-      "sha256": "0629627f90bcb67072d83dc1d1f9b8818dd6c1356b06f8bc3b9893fd906e9b37"
+      "bytes": 9494,
+      "sha256": "cebb571edd230f3d759ce6698227ce6e1891bca9bba6b5013159f3f4b11264c0"
     },
     {
       "path": "odvla/__init__.py",
@@ -99,8 +104,8 @@
     },
     {
       "path": "odvla/data.py",
-      "bytes": 10607,
-      "sha256": "a84978c7b57d38175e229ed735a88649100e884946f2a2231a8ce4295800dcbd"
+      "bytes": 10678,
+      "sha256": "57cebe951d6da1072dc5b7cfb2ca5e1db4febb6b73b8e69cd6d8cb4eb815bfb2"
     },
     {
       "path": "odvla/diagnostics.py",
@@ -109,8 +114,8 @@
     },
     {
       "path": "odvla/experiment.py",
-      "bytes": 13072,
-      "sha256": "ba8d7ee636ba199e01bd00b1fbf008c8e850fdb263580f76687e9d803c888219"
+      "bytes": 13599,
+      "sha256": "20f1a6d7d72895c2a7fdd64e69a532a7b74a2e09d036efd6bf5eaed461e68b1f"
     },
     {
       "path": "odvla/experimental_sam31.py",
@@ -161,6 +166,11 @@
       "path": "requirements-tested-cpu.txt",
       "bytes": 190,
       "sha256": "28b3d83ed03049c8e913f01f5d42d03d770ca01870df9815e6a5b1784117ef1d"
+    },
+    {
+      "path": "sam31_milk_development_config.json",
+      "bytes": 1412,
+      "sha256": "960c7a5a0f04e9223a029d55e0bf61b6642b80eefea8d58c8a9e2302e7625ddb"
     },
     {
       "path": "scripts/__init__.py",
@@ -221,6 +231,31 @@
       "path": "scripts/modal_loss_weight_sweep.py",
       "bytes": 1822,
       "sha256": "6a51de104dc359addfe01a3f46bf7211be069067eae6193347a45a9e2601acd0"
+    },
+    {
+      "path": "scripts/modal_milk_render_development.py",
+      "bytes": 4249,
+      "sha256": "462bcc98b610539bd30c095c2e88c0e263fc4b69090c08fe26b58493109c2559"
+    },
+    {
+      "path": "scripts/modal_milk_sam_cache.py",
+      "bytes": 7583,
+      "sha256": "04e263558215d853bfafc9bc50323f6243e2a9454b2b115a16b3c266a8eedf37"
+    },
+    {
+      "path": "scripts/modal_milk_sam_dynamics.py",
+      "bytes": 6002,
+      "sha256": "0d0d8aa9a9dd06cbb1e9bb58fa14ffbeccadf9e15fa3628554d7e4675160b672"
+    },
+    {
+      "path": "scripts/modal_milk_sam_policy.py",
+      "bytes": 2291,
+      "sha256": "47a2a65dc59449ac917e8220ddacca155b9c115c6d0622fef6e87e42da80f79a"
+    },
+    {
+      "path": "scripts/modal_milk_sam_prepare.py",
+      "bytes": 6026,
+      "sha256": "c0732f3faa9e658df3e1726b385f8d5c1c61e763fa7d9ca0e3f5db010597504e"
     },
     {
       "path": "scripts/modal_muse_smoke.py",
@@ -329,8 +364,8 @@
     },
     {
       "path": "tests/test_training.py",
-      "bytes": 3186,
-      "sha256": "f146b15d5e0e605da4b841de8cc6eadc62d12be102d454c4d956f28b6b029874"
+      "bytes": 4618,
+      "sha256": "86195e58cd80cf187567179ac3f6682616192de8e02b01dacb9a8a3ab50fe3ea"
     }
   ]
 }

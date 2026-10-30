@@ -86,7 +86,8 @@ def evaluate_arrays(model, data, device, config, stats, sample_actions=False):
 
 def train(dataset, split_file, output, *, epochs=20, history=4, horizon=4, hidden=128,
           batch_size=64, lr=1e-3, dynamics_weight=1.0, no_objects=False,
-          no_dynamics_actions=False, seed=7, device="cpu", max_per_episode=0, threads=2):
+          no_dynamics_actions=False, seed=7, device="cpu", max_per_episode=0, threads=2,
+          allow_experimental_perception=False, checkpoint_selection="combined"):
     torch = get_torch()
     from .model import ObjectDynamicsPolicy, masked_mse
     if epochs < 1 or history < 2 or horizon < 1 or batch_size < 1 or dynamics_weight < 0 or hidden < 1 or lr <= 0:
@@ -98,7 +99,10 @@ def train(dataset, split_file, output, *, epochs=20, history=4, horizon=4, hidde
         raise FileExistsError("Refusing to overwrite an existing run; use a new --out")
     splits = read_json(split_file)
     manifest = validate_splits(dataset, splits)
-    if manifest.get("perception", {}).get("causal") is not True:
+    if checkpoint_selection not in ("combined", "flow"):
+        raise ValueError("checkpoint_selection must be combined or flow")
+    if manifest.get("perception", {}).get("causal") is not True and not (
+            allow_experimental_perception and manifest.get("perception", {}).get("experimental_prefix_audited") is True):
         raise ValueError("Perception causality must be audited and declared before training")
     stats = fit_stats(dataset, splits)
     tr = build_windows(dataset, splits["train"], history, horizon, stats, no_objects, max_per_episode)
@@ -117,6 +121,8 @@ def train(dataset, split_file, output, *, epochs=20, history=4, horizon=4, hidde
               "metric_names": manifest["metric_names"], "metric_units": manifest["metric_units"],
               "torch_version": str(torch.__version__), "python_version": platform.python_version(),
               "device": device, "context_provenance": manifest.get("context_provenance", None),
+              "checkpoint_selection": checkpoint_selection,
+              "allow_experimental_perception": allow_experimental_perception,
               "claim": "Offline experiment only. No robot task success measured."}
     torch.set_num_threads(threads)
     torch.manual_seed(seed)
@@ -157,7 +163,7 @@ def train(dataset, split_file, output, *, epochs=20, history=4, horizon=4, hidde
                 totals += [loss.item(), action_loss.item(), dynamics_loss.item()]
                 n_batches += 1
             metrics, _ = evaluate_arrays(model, va, device, config, stats)
-            val_score = metrics["flow_mse"] + dynamics_weight * metrics["dynamics"]["normalized_mse"]
+            val_score = metrics["flow_mse"] + (dynamics_weight * metrics["dynamics"]["normalized_mse"] if checkpoint_selection == "combined" else 0)
             row = {"epoch": epoch, "train_loss": float(totals[0] / n_batches),
                    "train_flow_mse": float(totals[1] / n_batches),
                    "train_dynamics_mse": float(totals[2] / n_batches),
