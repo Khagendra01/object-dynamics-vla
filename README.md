@@ -34,6 +34,8 @@ Open these files before installing anything:
   one-step dynamics and paired offline policy comparisons.
 - `docs/SAM_CLOSED_LOOP_PILOT.md`: prefix-only replay benchmark, first-action
   diagnostics and a short paired simulator pilot.
+- `docs/MUSE_VLA_METHOD.md` and `docs/MUSE_SAM_RESULTS.md`: experimental
+  transformer architecture, frozen Muse cache, and measured implementation checks.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 

@@ -1,0 +1,22 @@
+{
+  "status": "experimental; no training or benchmark success implied",
+  "dataset_fingerprint": "b7bae449415728262307c262677def270cd50380406183d2455540351a1c72c4",
+  "lerobot_revision": "552777b7c384e8e71a02303da39583f9a2653760",
+  "muse_revision": "cec94fcfd6512f2cfe708138c32533b346ea4f69",
+  "sam_revision": "f1647e8d0c1d280991f4d1b7d974c2704537fe66",
+  "libero_revision": "8f1084e3132a39270c3a13ebe37270a43ece2a01",
+  "torch_version": "2.10.0", "transformers_version": "5.21.0",
+  "muse_layer": 26,
+  "muse_layer_indexing": "zero-based decoder block 26 of 52, output hook",
+  "processor_backend": "Transformers 5.21.0 / torchvision 0.25.0; configured LANCZOS falls back to BICUBIC; use identically at cache and rollout",
+  "image_source": "512x512 JPEG quality 98 agentview re-render; no extra thumbnailing",
+  "history": 4, "action_horizon": 50, "robot_dim": 15, "action_dim": 7,
+  "objects": ["milk", "basket"], "metrics": ["centroid_u", "centroid_v", "bbox_width", "bbox_height", "visible_area"],
+  "muse_width": 6656, "width": 512, "heads": 8, "feedforward_width": 2048,
+  "context_layers": 2, "expert_layers": 8, "integration_steps": 10,
+  "flow_convention": "noise_at_one; x=(1-t)*action+t*noise; target=noise-action; integrate t=1 to 0",
+  "dynamics": {"horizon": 1, "loss": "masked Smooth-L1", "weight": 0.1, "normalization": "train-only feature standard deviation, floor 0.001"},
+  "optimization": {"steps": 5000, "effective_batch_size": 64, "lr": 0.0001, "betas": [0.9, 0.95], "weight_decay": 0.00001, "warmup_steps": 250, "clip_norm": 10, "save_every": 250},
+  "seeds": [7, 19, 31], "checkpoint_selection": "fixed-schedule validation flow MSE",
+  "monitor": "disabled; passive diagnostics only", "final_evaluation": "fresh uninspected initializations required"
+}

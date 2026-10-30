@@ -24,8 +24,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13824,
-      "sha256": "c3adafc2f6ddc1008cd19edeef5b764b5b882ad5ab35acacb52422e264c7ea5a"
+      "bytes": 13980,
+      "sha256": "7565e22b5d68ed579f21f096618ce243bdd7a5e7bf548d29c9301989e2bb43a9"
+    },
+    {
+      "path": "configs/muse_sam_v1.json",
+      "bytes": 1779,
+      "sha256": "3b4479b6263dd528ac3849afec6f7dcfb27d3eed5ca96a574fefe773015859af"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -61,6 +66,16 @@
       "path": "docs/MILK_SAM_DEVELOPMENT.md",
       "bytes": 6399,
       "sha256": "28ca18e094a93d820f3dfaa2da4bb7de640bc056bcd6aa23c23d649158aa2184"
+    },
+    {
+      "path": "docs/MUSE_SAM_RESULTS.md",
+      "bytes": 3398,
+      "sha256": "15261c9e084aac2e82fbd4fe2199244d20b2ba2e8d1b0044fad76a838033c073"
+    },
+    {
+      "path": "docs/MUSE_VLA_METHOD.md",
+      "bytes": 2594,
+      "sha256": "56414bda05eeb5d871b5df6fa133138222dce4078b345b90a7b6ca7f7c165450"
     },
     {
       "path": "docs/SAM_CLOSED_LOOP_PILOT.md",
@@ -168,6 +183,31 @@
       "sha256": "a1710564bcd4b9abeb0d8f39ec1783637e05e574a109fbfefc7589b9a48cfa2c"
     },
     {
+      "path": "odvla/vla/__init__.py",
+      "bytes": 78,
+      "sha256": "5ec4ba3efc035b4cde27def8d28751bdaca2d5660a69b20212353d25374c94a7"
+    },
+    {
+      "path": "odvla/vla/action_expert.py",
+      "bytes": 6583,
+      "sha256": "86cb11162ad2cb99376bd96f390e96a8630677c7a2eabd069506deab976ebc4e"
+    },
+    {
+      "path": "odvla/vla/dataset.py",
+      "bytes": 5371,
+      "sha256": "ee778e6c5a2e3fb938758edcf96df917d4458b12db4bfc2a98ca296c8302299e"
+    },
+    {
+      "path": "odvla/vla/flow.py",
+      "bytes": 402,
+      "sha256": "0cd155e014a820166f9397779ee42c46bcd7581772089422607b3bab45a65b25"
+    },
+    {
+      "path": "odvla/vla/muse_context.py",
+      "bytes": 3458,
+      "sha256": "974b76a590248e44af7573df950765a0af2a591855d348ef6eebf55ac5279deb"
+    },
+    {
       "path": "pyproject.toml",
       "bytes": 575,
       "sha256": "e1602c78597e0a34f87b81c2129867103da967e270bf4bace27cc71e001b531c"
@@ -273,9 +313,34 @@
       "sha256": "c0732f3faa9e658df3e1726b385f8d5c1c61e763fa7d9ca0e3f5db010597504e"
     },
     {
+      "path": "scripts/modal_muse_full_cache.py",
+      "bytes": 5106,
+      "sha256": "393b7befabc6b1b5bc057665d16ec8bfd355aa505c56add5d3b1757e1548c4a8"
+    },
+    {
+      "path": "scripts/modal_muse_one_episode.py",
+      "bytes": 3751,
+      "sha256": "5c7105d91a85eebe0397763f7a41a36caf709db842d944f52c0fe682de7f6160"
+    },
+    {
+      "path": "scripts/modal_muse_seed7.py",
+      "bytes": 3439,
+      "sha256": "3ab1891a7c6c26a6597b016d3f415f24a77f134bc395260cb51f021fde5ea9e7"
+    },
+    {
       "path": "scripts/modal_muse_smoke.py",
       "bytes": 4741,
       "sha256": "72fffc96593c7171cde394e777a0d461b0a356df1c6cb73a4c1d03cf8dfd4201"
+    },
+    {
+      "path": "scripts/modal_muse_token_benchmark.py",
+      "bytes": 5505,
+      "sha256": "999e460816884fbf1bf56b43e060711a6b62de9972611353f05f8ecff7b6c6b5"
+    },
+    {
+      "path": "scripts/modal_muse_training_smoke.py",
+      "bytes": 970,
+      "sha256": "3049b6af1070ee217a1eb12f68e9727d0e7435552a770b3644c660a4c6c91fd8"
     },
     {
       "path": "scripts/modal_odvla.py",
@@ -363,9 +428,34 @@
       "sha256": "086a2ab5e867825474264d4984811a99b0965760420ce9ebcc529bacca86e55d"
     },
     {
+      "path": "scripts/modal_vla_batch_benchmark.py",
+      "bytes": 3345,
+      "sha256": "76ea4c680216ceb185b605aea41571b7c2ced10a951bb68f4f6dade58610b058"
+    },
+    {
+      "path": "scripts/modal_vla_overfit.py",
+      "bytes": 5516,
+      "sha256": "5c98776b3bccb1a3b8ec40927ed31245b84d4f080fa83f2a2fca380b144fd527"
+    },
+    {
+      "path": "scripts/modal_vla_train_benchmark.py",
+      "bytes": 3243,
+      "sha256": "dd4438e6375733fc1e16db9c738a38464502339c10d8ea6b5d08ffe3e4193852"
+    },
+    {
       "path": "scripts/run_ablations.py",
       "bytes": 2179,
       "sha256": "67f88ff2716cfcae8152c2879a0e60ff7c29c854394d7452611582d447579325"
+    },
+    {
+      "path": "scripts/train_muse_vla.py",
+      "bytes": 7828,
+      "sha256": "d6d4cc24b472c4592f757583b70a5cba30899e0c9d76b93c84609198135f460f"
+    },
+    {
+      "path": "scripts/vla_smoke_update.py",
+      "bytes": 3315,
+      "sha256": "48ec9b089883693aa31eacd1558269d30e5155af07e26df38f0affaaa5641ce7"
     },
     {
       "path": "tests/test_core.py",
@@ -396,6 +486,11 @@
       "path": "tests/test_training.py",
       "bytes": 4991,
       "sha256": "a3bb157bb051abf57f566f6cfdeb71c3650f2dae9fa7677b636ae61ed78e81c3"
+    },
+    {
+      "path": "tests/test_vla.py",
+      "bytes": 4988,
+      "sha256": "de543e294ceeb080fc0e680e2af6910557e460a6aa7b074cfa8d2a30358257e6"
     }
   ]
 }
