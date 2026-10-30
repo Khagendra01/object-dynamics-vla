@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 12970,
-      "sha256": "14702a528022b87a22ee54d1881efa31bcd4d716d73f0368541063d38ddaf5e8"
+      "bytes": 13806,
+      "sha256": "133ee58d0e273f439479234e71882699367968fc03d66b7b9baf3d186f06b4ce"
     },
     {
       "path": "LICENSE",
@@ -24,13 +24,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 13272,
-      "sha256": "62face709555a72d33ec8610e78fd82ebb23a45723567917873f73b1e0853a57"
+      "bytes": 13417,
+      "sha256": "bbd1d237fe7a7543517cecff8bca78463f039505773081ea4783e0a6b04b3e67"
     },
     {
       "path": "docs/ARCHITECTURE.md",
       "bytes": 5108,
       "sha256": "4d43c6fdea310db278168ee6873344a40cb3e8b729e38cc099b48852c1ccb8b3"
+    },
+    {
+      "path": "docs/CAMERA_PILOT_REPORT.md",
+      "bytes": 6481,
+      "sha256": "6b78a29c5456252e96a83569a8f5da7f63b38c1e5c502ce95dedecc459b8b21b"
     },
     {
       "path": "docs/DATA_SCHEMA.md",
@@ -64,8 +69,8 @@
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 9445,
-      "sha256": "b9d2983358fba91fd77c0a067e3770c4aa674be85e67129cd1a8cedf8344369b"
+      "bytes": 9467,
+      "sha256": "0629627f90bcb67072d83dc1d1f9b8818dd6c1356b06f8bc3b9893fd906e9b37"
     },
     {
       "path": "odvla/__init__.py",
@@ -101,6 +106,11 @@
       "path": "odvla/experiment.py",
       "bytes": 13072,
       "sha256": "ba8d7ee636ba199e01bd00b1fbf008c8e850fdb263580f76687e9d803c888219"
+    },
+    {
+      "path": "odvla/experimental_sam31.py",
+      "bytes": 3815,
+      "sha256": "684dde96aa59d0376b7368e3f923214acb36764fb1a2c333819a2673d2f73a7e"
     },
     {
       "path": "odvla/inference.py",
@@ -189,8 +199,8 @@
     },
     {
       "path": "scripts/modal_libero_native_render.py",
-      "bytes": 2920,
-      "sha256": "e2a1aefb54c3565ee6d9f7e7c707a4bd8a2a691dad816179854fb6833f6e385c"
+      "bytes": 3260,
+      "sha256": "869347bb6f18d2a191083dfab91f6447b188529f01dd418b1053bac5f696da05"
     },
     {
       "path": "scripts/modal_libero_oracle.py",
@@ -253,6 +263,11 @@
       "sha256": "861560606ee832ab1cb98426559aa78e84186307887151bec1631c14d0e19def"
     },
     {
+      "path": "scripts/modal_sam31_point_pilot.py",
+      "bytes": 16697,
+      "sha256": "3db9b056a26fe981a2ba97a1175b0c9638550d62188e80fa30fea8df6c1a3a2c"
+    },
+    {
       "path": "scripts/modal_sam31_repeatability.py",
       "bytes": 10704,
       "sha256": "35f66eb84e7f46955bb6de633fe6014bd397a68d4adebe7045fdd994e1ecfc09"
@@ -291,6 +306,11 @@
       "path": "tests/test_diagnostics.py",
       "bytes": 3188,
       "sha256": "b8f6570ddda1a1a37e6f4862dd3662afd60dc77858a8a39f287f846e5a7ada4b"
+    },
+    {
+      "path": "tests/test_experimental_sam31.py",
+      "bytes": 3782,
+      "sha256": "fa4ae01d57a7a915280f5bb7ceb7091a922ebe597cb721db4c4f7aabba6c189c"
     },
     {
       "path": "tests/test_integrations.py",

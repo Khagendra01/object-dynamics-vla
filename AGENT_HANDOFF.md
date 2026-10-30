@@ -18,7 +18,7 @@ controller units, frame conventions, model APIs, or benchmark success.
 Modal T4/A100: synthetic smoke and ablations, CLI
 audit/replay/predict/evaluate/report, HDF5 fixture import, GPU training, and two
 real LIBERO-Object tasks (50 demos each) downloaded, imported, and audited.
-The latest local automated suite passes 24 tests.
+The latest local automated suite passes 26 tests.
 
 The latest validation-only action, gradient, passive-monitor, and independent
 SAM probes are in `docs/DIAGNOSTICS_REPORT.md`. At frozen milk checkpoints the
@@ -50,6 +50,18 @@ lengths 11, 12, 15, 16, 17, and 69 identical at frame 10, with unchanged
 available-past pointer selection. This is diagnostic, not yet a production or
 general causality guarantee; `only_obj_ptrs_in_the_past_for_eval` was false.
 Full details and effective TF32 flags are in `docs/TRACKER_TRACE_REPORT.md`.
+
+The latest initialized RGB pilot and scoped bounded-memory audit are in
+`docs/CAMERA_PILOT_REPORT.md`. The experimental point adapter uses the configured
+pointer maximum, enables past-only pointer evaluation, and can disable known
+single-GPU detector lookahead. Selected prefix checks matched on three DAVIS
+clips and one 137-frame LIBERO milk validation episode; only the milk carton was
+tracked in the LIBERO pilot. That pilot used an agent-selected first RGB point,
+native 512-pixel simulator rendering, and simulator masks only for post-hoc
+scoring (mean IoU 0.9638). Full videos are preloaded in the full-session tests,
+not acquired live; no general online-causality guarantee is claimed. The next
+policy comparison must train both variants on the same SAM measurements, and
+this validation initialization is no longer untouched.
 
 Text-only SAM 3.1 failed on this task: unique target/basket prompts returned zero
 masks; only generic `can` matched 2–3 ambiguous instances. A full episode produced

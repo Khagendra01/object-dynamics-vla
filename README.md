@@ -26,6 +26,8 @@ Open these files before installing anything:
   weight sweep, passive prediction monitoring, and separate SAM probes.
 - `docs/TRACKER_TRACE_REPORT.md`: DAVIS propagation-stage trace, availability
   timing, and the diagnostic point-path workaround.
+- `docs/CAMERA_PILOT_REPORT.md`: bounded memory audit and one initialized
+  LIBERO RGB tracking episode, including numerical measurement jitter.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 
