@@ -1,5 +1,19 @@
 # Coding-agent handoff
 
+## 2026-10-30 continuation
+
+The current Modal profile can access the existing `object-dynamics-vla-data`
+volume. The present machine is Linux, lacks local PyTorch, and was reported by
+the owner to have no GPU. `docs/MUSE_VLA_METHOD.md` records the new motor
+checkpoint gate and the real one-update T4 smoke. This is not multi-task training
+or a completed comparison. The new gate currently requires the same dataset
+fingerprint and statistics across motor pretraining and adaptation; broader
+pretraining needs explicit cross-dataset split and normalization provenance.
+Existing scratch variants are diagnostics, not the requested common-checkpoint
+experiment. The official SmolVLA adapter reference, broader LIBERO token caches,
+full motor training, M0/M1/M2, development rollouts, and final evaluation remain
+open. Check remaining credit and measured costs before expanding GPU jobs.
+
 ## Goal and constraints
 
 Evaluate the user's idea: learn action-conditioned changes in numerical

@@ -52,7 +52,7 @@ def run(max_seconds: int = 18000):
             raise TimeoutError("Budget runtime cap reached; latest checkpoint is preserved")
     try:
         for variant in ("M0", "M1", "M2"):
-            result = train(root, cache, out / variant, variant, 7, "cuda", steps=5000,
+            result = train(root, cache, out / variant, variant, 7, "cuda", steps=5000, allow_scratch=True,
                            batch_size=64, accumulation=1, prepared=prepared, checkpoint_hook=commit_and_limit)
             results.append({"variant": variant, **result})
             torch.cuda.empty_cache()

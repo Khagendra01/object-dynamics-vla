@@ -7,6 +7,14 @@ from odvla.vla.flow import flow_inputs
 
 
 class VLAContractTests(unittest.TestCase):
+    def test_comparison_requires_motor_checkpoint(self):
+        from scripts.train_muse_vla import train
+        with self.assertRaisesRegex(ValueError, "common motor checkpoint"):
+            train("unused", "unused", "unused", "M1", 7, "cpu", steps=1)
+        with self.assertRaisesRegex(ValueError, "start from scratch"):
+            train("unused", "unused", "unused", "motor", 7, "cpu", steps=1,
+                  motor_checkpoint="unused")
+
     def episode(self):
         t = 5
         return {"features": np.arange(t * 2 * 5, dtype=np.float32).reshape(t, 2, 5),

@@ -37,3 +37,30 @@ the same fixed-schedule validation flow selection, and snapshots every 250
 updates. A seed-7 suite runner is experimental and subject to a runtime cap; do
 not report partial arms as a matched outcome. It preloads the frozen token cache
 in host RAM, so host memory and volume I/O are material resource costs.
+
+## Motor checkpoint gate (2026-10-30)
+
+`scripts/train_muse_vla.py` now accepts `--variant motor` to train without SAM
+inputs or a dynamics loss. M0/M1/M2 require `--motor-checkpoint` pointing to a
+selected `weights_best.pt`; the loader checks the motor configuration, exact
+dataset fingerprint, train-only statistics, and state-dict shapes and logs the
+checkpoint SHA-256. `--allow-scratch` is only for explicitly labelled diagnostics,
+not a controlled comparison. The same-dataset restriction is conservative: it
+does **not yet** support pretraining on a broader multitask dataset and adapting
+on a different fingerprint. Implement and audit normalization and split provenance
+for that case rather than bypassing the checks.
+
+On Modal T4, `~/modal-venv/bin/modal run scripts/modal_motor_smoke.py` performed
+one effective-64 update from the existing milk development cache, seed 7. It
+reported last microbatch flow MSE 2.8568447, validation flow MSE 2.9326054,
+gradient norm 28.6879, and 102.33 seconds inside the training loop including
+validation. The result and selected weights are at
+`/data/runs/muse_motor_smoke_v1` on `object-dynamics-vla-data`. This is a
+one-update smoke, not a learned motor checkpoint and not multi-task pretraining.
+The first attempt (Modal app `ap-wkTFW8ritmBa6sYYAV7hJ6`) failed to start due
+to a missing helper-module mount and was stopped; the corrected app was
+`ap-dEu8cvGAyLZapzMImnB6Vr`. No matched M0/M1/M2 result follows from this smoke.
+
+CPU-only Modal tests can be reproduced with
+`~/modal-venv/bin/modal run scripts/modal_vla_tests.py`. Do not use the old
+scratch seed-7 suite as the requested controlled comparison.

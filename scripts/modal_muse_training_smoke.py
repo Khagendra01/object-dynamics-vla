@@ -14,7 +14,7 @@ def run():
     sys.path.insert(0, "/root")
     from train_muse_vla import train
     result = train("/data/libero/milk_sam_development_v1", "/data/libero/muse_middle_tokens_development_v1",
-                   "/data/runs/muse_vla_trainer_smoke_v1", "M2", 7, "cuda", steps=1)
+                   "/data/runs/muse_vla_trainer_smoke_v1", "M2", 7, "cuda", steps=1, allow_scratch=True)
     volume.commit()
     return result
 

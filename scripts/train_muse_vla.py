@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 import numpy as np
 import torch
-from odvla.data import fit_stats, read_json, write_json
+from odvla.data import file_hash, fit_stats, read_json, write_json
 from odvla.vla.action_expert import MuseActionExpert
 from odvla.vla.dataset import CachedEpisodeDataset
 
@@ -49,9 +49,13 @@ def evaluate(model, dataset, device, use_sam, batch_size=8):
 
 
 def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, accumulation=8,
-          prepared=None, checkpoint_hook=None):
-    if variant not in ("M0", "M1", "M2") or batch_size * accumulation != 64:
-        raise ValueError("Use M0/M1/M2 and effective batch size 64")
+          prepared=None, checkpoint_hook=None, motor_checkpoint=None, allow_scratch=False):
+    if variant not in ("motor", "M0", "M1", "M2") or batch_size * accumulation != 64:
+        raise ValueError("Use motor/M0/M1/M2 and effective batch size 64")
+    if variant != "motor" and motor_checkpoint is None and not allow_scratch:
+        raise ValueError("Comparison variants require a common motor checkpoint")
+    if variant == "motor" and motor_checkpoint is not None:
+        raise ValueError("Motor pretraining must start from scratch")
     root, out = Path(dataset), Path(out)
     if out.exists(): raise FileExistsError("Use a fresh experiment output")
     splits = read_json(root / "splits.json")
@@ -63,6 +67,17 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
         stats, trainset, valset = prepared
     torch.manual_seed(seed)
     model = MuseActionExpert().to(device)
+    checkpoint_hash = None
+    if motor_checkpoint is not None:
+        checkpoint = Path(motor_checkpoint)
+        metadata = read_json(checkpoint.parent / "configuration.json")
+        if metadata["variant"] != "motor" or metadata["dataset_fingerprint"] != splits["fingerprint"]:
+            raise ValueError("Motor checkpoint provenance or dataset fingerprint mismatch")
+        with np.load(checkpoint.parent / "stats.npz", allow_pickle=False) as saved:
+            if set(saved.files) != set(stats) or any(not np.array_equal(saved[k], stats[k]) for k in stats):
+                raise ValueError("Motor checkpoint normalization statistics mismatch")
+        checkpoint_hash = file_hash(checkpoint)
+        model.load_state_dict(torch.load(checkpoint, map_location=device, weights_only=True), strict=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, betas=(.9, .95), weight_decay=1e-5)
     batch_rng = np.random.default_rng(seed); noise_rng = np.random.default_rng(seed + 10000)
     time_rng = np.random.default_rng(seed + 20000)
@@ -72,7 +87,8 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
         "batch_size": batch_size, "accumulation": accumulation, "dataset_fingerprint": splits["fingerprint"],
         "selection": "minimum fixed-schedule validation flow MSE", "training_data": "train only",
         "trainable_parameters": {n: p.numel() for n, p in model.named_parameters() if p.requires_grad},
-        "flow_convention": "noise at one", "sam": variant != "M0", "dynamics_weight": .1 if variant == "M2" else 0})
+        "flow_convention": "noise at one", "sam": variant in ("M1", "M2"), "dynamics_weight": .1 if variant == "M2" else 0,
+        "motor_checkpoint_sha256": checkpoint_hash, "scratch_diagnostic": variant != "motor" and checkpoint_hash is None})
     best = float("inf"); started = time.monotonic(); gradient_diagnostic = None
     for step in range(1, steps + 1):
         model.train(); optimizer.zero_grad(set_to_none=True)
@@ -83,7 +99,7 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
             a = b["actions"]
             noise = torch.from_numpy(noise_rng.normal(size=tuple(a.shape)).astype(np.float32)).to(device)
             t = torch.from_numpy((time_rng.beta(1.5, 1, size=len(a)) * .999 + .001).astype(np.float32)).to(device)
-            ctx, mask = context(model, b, variant != "M0")
+            ctx, mask = context(model, b, variant in ("M1", "M2"))
             loss, flow, dyn = model.losses(ctx, mask, a, b["action_valid"], noise, t, b["change"], b["change_valid"], .1 if variant == "M2" else 0)
             if step == 1 and microbatch == 0:
                 shared = list(model.context_encoder.parameters()) + list(model.expert.parameters())
@@ -102,7 +118,7 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
         for group in optimizer.param_groups: group["lr"] = 1e-4 * warmup * decay
         optimizer.step()
         if step % 250 == 0 or step == steps:
-            value = evaluate(model, valset, device, variant != "M0", batch_size)
+            value = evaluate(model, valset, device, variant in ("M1", "M2"), batch_size)
             torch.save(model.state_dict(), out / f"weights_step{step:05}.pt")
             if value < best:
                 best = value
@@ -120,11 +136,13 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument("--dataset", required=True); p.add_argument("--cache", required=True)
-    p.add_argument("--out", required=True); p.add_argument("--variant", choices=("M0", "M1", "M2"), required=True)
+    p.add_argument("--out", required=True); p.add_argument("--variant", choices=("motor", "M0", "M1", "M2"), required=True)
     p.add_argument("--seed", type=int, default=7); p.add_argument("--device", default="cuda")
     p.add_argument("--steps", type=int, default=5000); p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--accumulation", type=int, default=8)
-    a = p.parse_args(); print(train(a.dataset, a.cache, a.out, a.variant, a.seed, a.device, a.steps, a.batch_size, a.accumulation))
+    p.add_argument("--motor-checkpoint", help="Selected motor weights_best.pt; required for comparisons")
+    p.add_argument("--allow-scratch", action="store_true", help="Permit scratch diagnostic, not a controlled comparison")
+    a = p.parse_args(); print(train(a.dataset, a.cache, a.out, a.variant, a.seed, a.device, a.steps, a.batch_size, a.accumulation, motor_checkpoint=a.motor_checkpoint, allow_scratch=a.allow_scratch))
 
 
 if __name__ == "__main__": main()
