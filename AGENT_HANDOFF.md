@@ -2,6 +2,14 @@
 
 ## 2026-10-30 continuation
 
+Subsequently, the owner reported $15 remaining Modal credit. A bounded
+500-update milk-only motor run, common-checkpoint seed-7 M0/M1/M2 comparison,
+and sampled-action/one-step offline evaluation completed. See
+`docs/MOTOR_MILK_DEVELOPMENT.md` for outputs, costs and limitations. M2's
+forecast lost to persistence on every overall metric; no new control result
+was obtained. These are exploratory single-task results, not the specified
+multitask/three-seed experiment.
+
 The current Modal profile can access the existing `object-dynamics-vla-data`
 volume. The present machine is Linux, lacks local PyTorch, and was reported by
 the owner to have no GPU. `docs/MUSE_VLA_METHOD.md` records the new motor
