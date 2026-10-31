@@ -51,11 +51,13 @@ def evaluate(model, dataset, device, use_sam, batch_size=8):
 
 def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, accumulation=8,
           prepared=None, checkpoint_hook=None, motor_checkpoint=None, allow_scratch=False,
-          dataset_audit=None, resume=False, save_every=250):
+          dataset_audit=None, resume=False, save_every=250, prepared_provenance=None):
     if variant not in ("motor", "M0", "M1", "M2") or batch_size * accumulation != 64:
         raise ValueError("Use motor/M0/M1/M2 and effective batch size 64")
     if save_every < 1 or steps < 1:
         raise ValueError("steps and save_every must be positive")
+    if prepared_provenance is not None and (prepared is None or variant != "motor" or motor_checkpoint is not None):
+        raise ValueError("Prepared multitask provenance is only for motor training")
     if variant != "motor" and motor_checkpoint is None and not allow_scratch and not resume:
         raise ValueError("Comparison variants require a common motor checkpoint")
     if variant == "motor" and motor_checkpoint is not None:
@@ -69,6 +71,8 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
         contract = read_json(dataset_audit)
         audit = summarize_contract(contract, splits)
         validate_artifacts(contract, manifest, read_json(Path(cache) / "manifest.json"))
+    if prepared_provenance is not None:
+        audit = prepared_provenance["dataset_audit"]
     checkpoint_hash = None
     transfer_report = None
     source_stats = None
@@ -104,18 +108,20 @@ def train(dataset, cache, out, variant, seed, device, steps=5000, batch_size=8, 
     batch_rng = np.random.default_rng(seed); noise_rng = np.random.default_rng(seed + 10000)
     time_rng = np.random.default_rng(seed + 20000)
     config = {"variant": variant, "seed": seed, "steps": steps,
-        "batch_size": batch_size, "accumulation": accumulation, "dataset_fingerprint": splits["fingerprint"],
+        "batch_size": batch_size, "accumulation": accumulation,
+        "dataset_fingerprint": prepared_provenance["fingerprint"] if prepared_provenance else splits["fingerprint"],
         "selection": "minimum fixed-schedule validation flow MSE", "training_data": "train only",
         "trainable_parameters": {n: p.numel() for n, p in model.named_parameters() if p.requires_grad},
         "flow_convention": "noise at one", "sam": variant in ("M1", "M2"), "dynamics_weight": .1 if variant == "M2" else 0,
         "motor_checkpoint_sha256": checkpoint_hash, "scratch_diagnostic": variant != "motor" and checkpoint_hash is None,
         "dataset_audit": audit, "transfer_audit": transfer_report,
-        "cache_manifest_sha256": file_hash(Path(cache) / "manifest.json"), "save_every": save_every}
+        "cache_manifest_sha256": file_hash(Path(cache) / "manifest.json"), "save_every": save_every,
+        "prepared_provenance": prepared_provenance}
     start_step = 0
     best = float("inf")
     if resume:
         previous = read_json(out / "configuration.json")
-        for key in ("variant", "seed", "steps", "batch_size", "accumulation", "dataset_fingerprint", "cache_manifest_sha256", "save_every"):
+        for key in ("variant", "seed", "steps", "batch_size", "accumulation", "dataset_fingerprint", "cache_manifest_sha256", "save_every", "prepared_provenance"):
             if previous[key] != config[key]: raise ValueError(f"Resume configuration mismatch: {key}")
         with np.load(out / "stats.npz", allow_pickle=False) as saved:
             if set(saved.files) != set(stats) or any(not np.array_equal(saved[k], stats[k]) for k in stats):

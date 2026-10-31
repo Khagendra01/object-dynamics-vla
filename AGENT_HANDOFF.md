@@ -2,6 +2,14 @@
 
 ## 2026-10-30 continuation
 
+Later continuation: `docs/MULTITASK_MOTOR_DEVELOPMENT.md` records the completed
+milk/soup frozen-token cache, simulator-controller checks, 1,000-step seed-7
+two-task motor run, exact-resume after budget interruption, and one-step audited
+milk transfer smoke. These are offline checks, not motor competence. Official
+SmolVLA reference and policy rollouts remain open. The specific Modal driver
+checks pooled provenance; arbitrary `prepared_provenance` is not a generic
+audited multi-task data interface.
+
 The follow-up gripper and dynamics diagnostics are in
 `docs/MOTOR_MILK_DEVELOPMENT.md`: the majority-command baseline is 57.8%, and
 M2 loses to persistence even on training and the declared moving subset.
