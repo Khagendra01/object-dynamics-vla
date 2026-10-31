@@ -81,7 +81,30 @@ The cached milk change target normalized by training standard deviations is
 `[.08493, .05255, .07649, -.01169, -.17749]`. Both object slots were valid.
 These are recorded samples, not executed actions.
 
+### Class imbalance and forecast diagnostic
+
+The separately executed `scripts/modal_motor_diagnostics.py` produced the same
+validation confusion matrix for all three variants: target minus predicted
+minus/plus = 458/53, target plus predicted minus/plus = 23/677. Always-minus
+accuracy is 42.20%, always-plus is 57.80%; minus and plus recall are 89.63%
+and 96.71%. No target or prediction was exactly zero. These are offline,
+reused-validation sampled commands; they are not independent control outcomes.
+
+M2's train-set forecasting also loses to persistence on every metric. For a
+declared moving subset, an object is moving when **any** valid normalized
+metric has absolute one-step change greater than 0.1; this is an image-space
+measurement heuristic, not physical ground-truth motion. Per-object counts are
+1,873 moving / 7,833 stationary for train and 432 / 1,974 for validation.
+For moving train objects M2 MSE by metric is
+`[.00810, .00901, .01409, .04300, .00786]` versus persistence
+`[.000759, .00782, .00673, .04141, .000841]`. For moving validation objects it
+is `[.01347, .01556, .01628, .03441, .01015]` versus
+`[.000714, .00746, .00337, .02436, .000678]`. Persistence is also better on
+all stationary metrics. Full per-metric results are stored on the Modal volume
+at `/data/eval/muse_motor_milk_diagnostics_seed7_v1.json`. This diagnostic
+uses demonstrated `a[t]` only and does not evaluate a newly trained head.
+
 The official SmolVLA reference, wider LIBERO compatibility and token caches,
 multitask motor checkpoint, three-seed matched comparisons, and new Muse/SAM
-closed-loop rollout remain unfinished. The current trainer's fingerprint gate
-does not yet support changing datasets between pretraining and adaptation.
+closed-loop rollout remain unfinished. Cross-dataset transfer requires the
+explicit audits described in `MUSE_VLA_METHOD.md`.

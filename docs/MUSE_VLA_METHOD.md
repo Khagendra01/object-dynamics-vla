@@ -45,10 +45,9 @@ inputs or a dynamics loss. M0/M1/M2 require `--motor-checkpoint` pointing to a
 selected `weights_best.pt`; the loader checks the motor configuration, exact
 dataset fingerprint, train-only statistics, and state-dict shapes and logs the
 checkpoint SHA-256. `--allow-scratch` is only for explicitly labelled diagnostics,
-not a controlled comparison. The same-dataset restriction is conservative: it
-does **not yet** support pretraining on a broader multitask dataset and adapting
-on a different fingerprint. Implement and audit normalization and split provenance
-for that case rather than bypassing the checks.
+not a controlled comparison. At the time of the smoke this required the same
+dataset fingerprint; the subsequent audited cross-dataset path and its remaining
+limitations are described below.
 
 On Modal T4, `~/modal-venv/bin/modal run scripts/modal_motor_smoke.py` performed
 one effective-64 update from the existing milk development cache, seed 7. It
@@ -64,3 +63,35 @@ to a missing helper-module mount and was stopped; the corrected app was
 CPU-only Modal tests can be reproduced with
 `~/modal-venv/bin/modal run scripts/modal_vla_tests.py`. Do not use the old
 scratch seed-7 suite as the requested controlled comparison.
+
+## Transfer and resume contracts
+
+The trainer accepts `--dataset-audit` JSON for independently audited source
+and destination datasets. It records source-demo identities for each split and
+requires equal declared embodiment, controller, action/robot channels, frames,
+units, gripper convention, camera/orientation, frequency, metric/slot roles and
+Muse model/layer/processor, plus no motor-training overlap with destination
+validation/test source identities. It checks metric and Muse declarations against
+the actual manifests. Other semantics and source identities must be supported by
+the audit evidence: these declarations cannot automatically detect paraphrased
+or altered duplicate episodes or prove controller details. Unknown provenance
+fails closed. Previous motor checkpoints have no such audit, so they cannot be
+cross-dataset transferred without reconstructing and verifying their provenance;
+do not add guessed metadata. Same-fingerprint transfers remain supported.
+
+Cross-dataset transfer reuses the motor checkpoint's training-only normalizer
+unchanged for observations, targets and output decoding. It does not fit a new
+normalizer and silently change the policy's coordinate system. A supplied
+preloaded dataset must already use those exact statistics. The current loader
+still handles only a single dataset/cache at a time; this gate alone does not
+implement multi-task joint training.
+
+New runs atomically save `training_state.pt` containing model, optimizer,
+update, best validation score, independent NumPy streams and PyTorch CPU/CUDA
+RNG states at each `--save-every` checkpoint. `--resume` requires the original
+schedule length, seed, dataset/cache identities, batch sizes and save interval;
+it restores the saved normalizer. It cannot turn a completed 500-step schedule
+into a 5,000-step schedule. Older weight-only runs are not resumable: a new
+training phase from their weights requires an explicit new schedule and must not
+be described as exact continuation. The CPU test interrupts a two-step run and
+verifies bit-exact weights after resumption.

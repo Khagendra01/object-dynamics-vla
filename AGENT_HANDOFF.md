@@ -2,6 +2,15 @@
 
 ## 2026-10-30 continuation
 
+The follow-up gripper and dynamics diagnostics are in
+`docs/MOTOR_MILK_DEVELOPMENT.md`: the majority-command baseline is 57.8%, and
+M2 loses to persistence even on training and the declared moving subset.
+Cross-dataset audit and exact-resume contracts now exist; real cross-dataset
+training still requires audited source identities, semantics and token caches,
+and the trainer does not yet mix datasets. Previous checkpoints lack auditable
+transfer metadata and optimizer/RNG state. Official SmolVLA reference and
+broader motor pretraining remain open. No zero-initialization run has been made.
+
 Subsequently, the owner reported $15 remaining Modal credit. A bounded
 500-update milk-only motor run, common-checkpoint seed-7 M0/M1/M2 comparison,
 and sampled-action/one-step offline evaluation completed. See
