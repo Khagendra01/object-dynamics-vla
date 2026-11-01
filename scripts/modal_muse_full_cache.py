@@ -62,7 +62,7 @@ def cache(max_runtime_seconds: int = 3600):
                 output = folder / f"{i:06}.npz"
                 if output.exists():
                     raise FileExistsError(f"Uncommitted partial episode exists: {output}")
-                item = model.encode(Image.open(image_path), entry["instruction"])
+                item = model.encode(Image.open(image_path), entry["instruction"], current_date="2026-10-30")
                 np.savez(output, **item)
                 records.append({"frame": i, "timestamp": i / 20, "image_sha256": hashlib.sha256(image_path.read_bytes()).hexdigest(),
                     "tokens": len(item["attention_mask"]), "bytes": output.stat().st_size,
@@ -76,7 +76,7 @@ def cache(max_runtime_seconds: int = 3600):
             print(json.dumps({"episode": episode, "completed": len(completed), "elapsed": time.monotonic() - started}), flush=True)
         result = dict(identity, complete=len(completed) == len(manifest["episodes"]), episodes=completed,
             elapsed_seconds=time.monotonic() - started, processor_config_sha256=model.processor_hash,
-            transformers=transformers.__version__, torch=torch.__version__, peak_gpu_gib=torch.cuda.max_memory_allocated() / 1024 ** 3)
+            transformers=transformers.__version__, torch=torch.__version__, chat_current_date="2026-10-30", peak_gpu_gib=torch.cuda.max_memory_allocated() / 1024 ** 3)
         (out / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")
         volume.commit()
         return result

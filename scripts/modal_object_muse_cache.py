@@ -63,7 +63,7 @@ def cache(full: bool = False):
             records = []
             for t, image_path in enumerate(images):
                 path = folder / f"{t:06}.npz"
-                item = model.encode(Image.open(image_path), entry["instruction"])
+                item = model.encode(Image.open(image_path), entry["instruction"], current_date="2026-10-30")
                 if path.exists():
                     with np.load(path, allow_pickle=False) as old:
                         if set(old.files) != set(item) or any(not np.array_equal(old[k], item[k]) for k in item):
@@ -84,7 +84,7 @@ def cache(full: bool = False):
                   "fps": 20, "test_used": False, "complete": full, "episodes": [e["id"] for e in entries],
                   "processor_config_sha256": model.processor_hash, "transformers": transformers.__version__,
                   "torch": str(torch.__version__), "peak_gpu_gib": torch.cuda.max_memory_allocated() / 1024**3,
-                  "frames": frame_count, "bytes": byte_count, "elapsed_seconds": time.monotonic() - started}
+                  "chat_current_date": "2026-10-30", "frames": frame_count, "bytes": byte_count, "elapsed_seconds": time.monotonic() - started}
         (out / "manifest.json").write_text(json.dumps(result, indent=2) + "\n")
         volume.commit()
         return result

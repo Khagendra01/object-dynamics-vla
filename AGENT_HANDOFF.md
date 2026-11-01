@@ -2,6 +2,17 @@
 
 ## 2026-10-30 continuation
 
+Latest execution: `docs/MULTITASK_SAM_CLOSED_LOOP.md` records matched M0/M1/M2
+adaptations for seeds 7/19/31, offline first-action/dynamics metrics, and four
+200-step M1/M2 pairs on two reused validation states (all no success). All used
+the same seed-7 two-task motor checkpoint. Frozen Muse/SAM coexisted at 66.14
+GiB; incremental SAM matched prefix replay on both 70-frame reference videos
+and at seven points of each new run. Critically, historical milk and soup token
+caches embed different chat-template dates, a task-correlated pretraining
+confound. New extraction requires a fixed explicit date and pooled training now
+rejects date-unannotated/mismatched caches. Do not claim language grounding;
+regenerate date-consistent caches before a clean motor-pretraining experiment.
+
 The official pinned SmolVLA adapter reference was subsequently run. See
 `docs/SMOLVLA_REFERENCE.md`: frozen pretrained SmolVLM2 plus a randomly
 initialized official expert completed one update and 10-step sampling on a real

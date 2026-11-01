@@ -36,6 +36,8 @@ Open these files before installing anything:
   diagnostics and a short paired simulator pilot.
 - `docs/MUSE_VLA_METHOD.md` and `docs/MUSE_SAM_RESULTS.md`: experimental
   transformer architecture, frozen Muse cache, and measured implementation checks.
+- `docs/MULTITASK_SAM_CLOSED_LOOP.md`: three-seed matched adaptations, paired
+  development rollouts, the Muse chat-date confound and runtime parity checks.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 

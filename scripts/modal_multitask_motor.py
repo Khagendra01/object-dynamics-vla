@@ -46,11 +46,20 @@ def run(resume: bool = False):
         "muse_revision": "cec94fcfd6512f2cfe708138c32533b346ea4f69", "muse_layer": 26,
         "muse_processor_sha256": "97e2a486dd9866b81f40cf4b8bc0c9ced9a7cd8a5bc65aa4cc2f4de0712dae77"}
     imports = None
+    cache_date = None
     for root, cache, source in tasks:
         splits = read_json(root / "splits.json"); manifest = validate_splits(root, splits)
         provenance = read_json(cache / "manifest.json")
         if not provenance["complete"] or provenance["dataset_fingerprint"] != splits["fingerprint"]:
             raise ValueError("Unfinished or mismatched token cache")
+        # Historical caches omitted this field and used different implicit
+        # dates; require explicit, identical dates before any new pooled run.
+        date = provenance.get("chat_current_date")
+        if not isinstance(date, str) or not date:
+            raise ValueError("Muse cache lacks explicit chat-template date; regenerate or audit before pooling")
+        if cache_date is not None and date != cache_date:
+            raise ValueError("Muse cache dates differ across tasks")
+        cache_date = date
         current = {k: manifest["import"][k] for k in ("fps_user_supplied", "robot_keys", "image_key", "flip_vertical", "alignment_assumption")}
         if imports is not None and current != imports: raise ValueError("Dataset import conventions differ")
         imports = current

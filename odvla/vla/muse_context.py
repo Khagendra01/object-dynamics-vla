@@ -32,13 +32,15 @@ class FrozenMuseTokens:
             raise ValueError("Unexpected Muse layer output")
         self.captured = value.detach().clone()
 
-    def encode(self, image, instruction):
+    def encode(self, image, instruction, *, current_date):
         """One RGB image and instruction; returns all token features and metadata."""
         torch = self.torch
         messages = [{"role": "user", "content": [{"type": "image", "image": image.convert("RGB")},
                                                      {"type": "text", "text": instruction}]}]
+        if not isinstance(current_date, str) or not current_date:
+            raise ValueError("A fixed chat-template current_date is required for reproducible features")
         batch = self.processor.apply_chat_template(messages, tokenize=True, add_generation_prompt=True,
-            return_dict=True, return_tensors="pt")
+            return_dict=True, return_tensors="pt", current_date=current_date)
         batch = {k: v.to(self.model.device) if hasattr(v, "to") else v for k, v in batch.items()}
         kwargs = {"use_cache": False, "return_dict": True}
         if "logits_to_keep" in inspect.signature(self.model.forward).parameters:

@@ -33,7 +33,7 @@ def cache():
     try:
         for t, path in enumerate(files):
             clock = time.monotonic()
-            item = model.encode(Image.open(path), instruction)
+            item = model.encode(Image.open(path), instruction, current_date="2026-10-30")
             output = out / f"{t:06}.npz"
             np.savez(output, **item)
             records.append({"frame": t, "timestamp": t / 20, "image_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -42,14 +42,14 @@ def cache():
                 "seconds": time.monotonic() - clock})
             if (t + 1) % 20 == 0:
                 (out / "progress.json").write_text(json.dumps(records, indent=2) + "\n"); volume.commit()
-        replay = model.encode(Image.open(files[0]), instruction)
+        replay = model.encode(Image.open(files[0]), instruction, current_date="2026-10-30")
         with np.load(out / "000000.npz", allow_pickle=False) as saved:
             parity = {k: bool(np.array_equal(saved[k], replay[k])) for k in replay}
         result = {"complete": True, "episode": "episode_0014", "frames": len(files),
             "dataset_fingerprint": "b7bae449415728262307c262677def270cd50380406183d2455540351a1c72c4",
             "revision": "cec94fcfd6512f2cfe708138c32533b346ea4f69", "layer_index": model.layer_index,
             "module_name": model.module_name, "processor_config_sha256": model.processor_hash,
-            "processor_backend": "Transformers 5.21.0 torchvision 0.25.0: configured LANCZOS falls back to BICUBIC",
+            "processor_backend": "Transformers 5.21.0 torchvision 0.25.0: configured LANCZOS falls back to BICUBIC", "chat_current_date": "2026-10-30",
             "transformers": transformers.__version__, "torch": torch.__version__, "dtype": "BF16 bit pattern in uint16",
             "instruction_sha256": hashlib.sha256(instruction.encode()).hexdigest(), "frames_metadata": records,
             "cache_online_same_backend_parity_first_frame": parity, "frozen": all(not p.requires_grad for p in model.model.parameters()),

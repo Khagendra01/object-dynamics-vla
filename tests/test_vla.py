@@ -7,6 +7,21 @@ from odvla.vla.flow import flow_inputs
 
 
 class VLAContractTests(unittest.TestCase):
+    def test_muse_requires_fixed_chat_date(self):
+        from PIL import Image
+        from odvla.vla.muse_context import FrozenMuseTokens
+        model = FrozenMuseTokens.__new__(FrozenMuseTokens)
+        model.torch = torch
+        with self.assertRaisesRegex(ValueError, "fixed chat-template"):
+            model.encode(Image.new("RGB", (2, 2)), "task", current_date="")
+
+    def test_incremental_tracker_rejects_invalid_configuration(self):
+        from odvla.sam_incremental import IncrementalPointTracker
+        with self.assertRaises(ValueError):
+            IncrementalPointTracker(None, "unused", [(1, 2), (3, 4)], [1, 1])
+        with self.assertRaises(ValueError):
+            IncrementalPointTracker(None, "unused", [(1, 2)], [1], capacity=201)
+
     def test_comparison_requires_motor_checkpoint(self):
         from scripts.train_muse_vla import train
         with self.assertRaisesRegex(ValueError, "common motor checkpoint"):
