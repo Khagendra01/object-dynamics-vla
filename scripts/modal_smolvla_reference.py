@@ -6,13 +6,13 @@ MODEL = "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
 MODEL_REVISION = "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
 app = modal.App("odvla-official-smolvla-reference")
 volume = modal.Volume.from_name("object-dynamics-vla-data", create_if_missing=False)
-image = (modal.Image.debian_slim(python_version="3.12")
+reference_base = (modal.Image.debian_slim(python_version="3.12")
          .apt_install("git", "libgl1", "ffmpeg")
          .run_commands("git clone https://github.com/huggingface/lerobot.git /opt/lerobot",
                        f"git -C /opt/lerobot checkout {REVISION}",
                        "pip install 'torch==2.10.0' 'torchvision==0.25.0'",
-                       "pip install '/opt/lerobot[smolvla]'")
-         .add_local_python_source("odvla"))
+                       "pip install '/opt/lerobot[smolvla]'"))
+image = reference_base.add_local_python_source("odvla")
 
 
 @app.function(image=image, volumes={"/data": volume}, cpu=2, memory=8192, timeout=1200, max_containers=1)

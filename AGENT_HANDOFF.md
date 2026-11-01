@@ -2,6 +2,14 @@
 
 ## 2026-10-30 continuation
 
+Latest: `docs/SMOLVLA_PRETRAINED_LIBERO.md` records the downloaded official
+robot-pretrained SmolVLA checkpoint and 500/1,000-update LIBERO adaptations.
+The 1,000-step checkpoint succeeded on two previously used validation states,
+not independent tests; it is a separate SmolVLA policy with no SAM or Muse.
+Its pretrained expert does not fit the current Muse expert without a new
+compatibility design. Robot-pretraining dataset overlap remains unaudited. The
+new fine-tuning driver saves optimizer/RNG state but does not yet support resume.
+
 Latest execution: `docs/MULTITASK_SAM_CLOSED_LOOP.md` records matched M0/M1/M2
 adaptations for seeds 7/19/31, offline first-action/dynamics metrics, and four
 200-step M1/M2 pairs on two reused validation states (all no success). All used

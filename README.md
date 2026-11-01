@@ -38,6 +38,8 @@ Open these files before installing anything:
   transformer architecture, frozen Muse cache, and measured implementation checks.
 - `docs/MULTITASK_SAM_CLOSED_LOOP.md`: three-seed matched adaptations, paired
   development rollouts, the Muse chat-date confound and runtime parity checks.
+- `docs/SMOLVLA_PRETRAINED_LIBERO.md`: robot-pretrained SmolVLA fine-tuning and
+  development-only LIBERO rollouts, separate from the Muse/SAM experiments.
 - `docs/EXECUTION_REPORT.md`: later macOS + Modal T4/A100 execution, including a
   real LIBERO numeric experiment with oracle masks, costs, and remaining blockers.
 
