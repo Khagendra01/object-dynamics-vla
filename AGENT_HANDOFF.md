@@ -2,6 +2,13 @@
 
 ## 2026-10-30 continuation
 
+The official pinned SmolVLA adapter reference was subsequently run. See
+`docs/SMOLVLA_REFERENCE.md`: frozen pretrained SmolVLM2 plus a randomly
+initialized official expert completed one update and 10-step sampling on a real
+milk training frame, with normalization and end-padding checks. It is not a
+robot-trained checkpoint or a success benchmark; the earlier open items about
+policy rollouts and matched multi-seed comparisons remain.
+
 Later continuation: `docs/MULTITASK_MOTOR_DEVELOPMENT.md` records the completed
 milk/soup frozen-token cache, simulator-controller checks, 1,000-step seed-7
 two-task motor run, exact-resume after budget interruption, and one-step audited

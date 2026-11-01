@@ -6,7 +6,8 @@ SmolVLA model or a trained motor policy. The full specification is the owner's
 must be reported separately. The reference LeRobot source is pinned at
 `552777b7c384e8e71a02303da39583f9a2653760`. Its flow interpolation is noise at
 time one, velocity `noise - action`, with Euler sampling from one to zero.
-The official SmolVLA reference training run has **not** yet been performed.
+The official SmolVLA one-update adapter reference has since been performed;
+see `SMOLVLA_REFERENCE.md`. It is not a trained reference benchmark.
 
 `configs/muse_sam_v1.json` fixes the existing milk development fingerprint,
 model revisions, 20 Hz data convention, 4-frame history, 50-step actions,

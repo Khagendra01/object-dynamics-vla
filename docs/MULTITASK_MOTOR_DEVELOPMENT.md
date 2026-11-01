@@ -94,8 +94,9 @@ usage. The initial/resumed motor jobs used T4, 4 CPU cores and 112 GiB for about
 rates, excluding startup and other charges. Rendering, pilot, audit, smoke and
 storage are additional. Actual billing and remaining credit were not retrieved.
 
-The official pinned SmolVLA reference through the adapter, independent test
-states, skill rollouts and matched three-seed M0/M1/M2 adaptation remain open.
+The official pinned SmolVLA one-update adapter reference has since run; see
+`SMOLVLA_REFERENCE.md`. Independent test states, skill rollouts and matched
+three-seed M0/M1/M2 adaptation remain open.
 The two-task checkpoint uses one seed, only 1,000 updates and pooled selection;
 neither data scale nor validation loss establishes motor competence. The train
 runner currently relies on the specific audited Modal driver to construct the
