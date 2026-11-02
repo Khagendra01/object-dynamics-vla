@@ -2,6 +2,18 @@
 
 ## 2026-10-30 continuation
 
+Latest: `docs/BRIDGE_PAIRED_NOISE_DIAGNOSTIC.md` reports a four-way offline
+matched-noise comparison on six observations reconstructed from the failed
+combined rollout. The native original output matched official LeRobot and its
+recorded first action exactly; native updated stayed much closer to native
+original than the frozen or updated bridges on these examples. Evidence points
+to bridge fidelity but is not proof of the failure cause. TF32 flags were false
+before constructing models and true immediately before Muse forwards after
+SAM; first-frame cache parity passed in this diagnostic, so the earlier mismatch
+remains unexplained. Full outputs are on Modal at
+`/data/eval/muse_smolvla_bridge_diagnostic_v1/results_v2.json`. No dynamics
+objective was trained in this work.
+
 Latest continuation: `docs/MUSE_SMOLVLA_BRIDGE_DEVELOPMENT.md` records a real
 Muse-token/SAM/state connector into the native pretrained SmolVLA expert. A
 single CPU native-interface parity case passed exactly, 250-step connector

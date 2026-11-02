@@ -103,7 +103,7 @@ def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014
     from odvla.sam_prefix import replay_current
     from odvla.sam_incremental import IncrementalPointTracker
     from odvla.vla.dataset import observation_window
-    from odvla.vla.muse_context import FrozenMuseTokens
+    from odvla.vla.muse_context import FrozenMuseTokens, backend_snapshot
     from sam3.model_builder import build_sam3_multiplex_video_predictor
     sys.path.insert(0, "/root")
     from extract_sam31 import _patch_multiplex_init_state
@@ -131,12 +131,14 @@ def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     dest.mkdir(parents=True); frames = dest / "frames"; frames.mkdir()
     env = None; muse = None; incremental = None; traces = []; success = False
-    started = time.monotonic(); policy = Policy()
+    started = time.monotonic(); policy = Policy(); backend = {"before_construction": backend_snapshot(torch)}
     try:
         tracker = build_sam3_multiplex_video_predictor(checkpoint_path=str(sam_path), use_fa3=False,
             compile=False, warm_up=False, async_loading_frames=False)
         _patch_multiplex_init_state(tracker)
+        backend["after_sam_construction"] = backend_snapshot(torch)
         muse = FrozenMuseTokens("/data/checkpoints/muse-glimmer-30b/cec94fcfd6512f2cfe708138c32533b346ea4f69", 26)
+        backend["after_construction"] = backend_snapshot(torch, muse.model)
         reference = read_json("/data/libero/muse_middle_tokens_development_v1/manifest.json")
         if muse.processor_hash != reference["processor_config_sha256"] or transformers.__version__ != reference["transformers"]:
             raise ValueError("Muse processor differs from training cache")
@@ -163,6 +165,9 @@ def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014
                         "timestamps": np.arange(n, dtype=np.float64) / 20, "actions": np.zeros((n, 7), np.float32)}
             window = observation_window(observed, n - 1, stats)
             with torch.autocast("cuda", enabled=False):
+                if step == 0:
+                    backend["immediately_before_muse_after_sam"] = backend_snapshot(torch, muse.model)
+                    (dest / "backend.json").write_text(json.dumps(backend, indent=2) + "\n")
                 token = muse.encode(Image.open(frame), "pick up the milk and place it in the basket", current_date="2026-10-30")
             if step == 0:
                 with np.load(f"/data/libero/muse_middle_tokens_development_v1/{episode}/000000.npz", allow_pickle=False) as z:

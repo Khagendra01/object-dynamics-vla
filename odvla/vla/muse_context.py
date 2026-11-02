@@ -5,6 +5,26 @@ import inspect
 import numpy as np
 
 
+def backend_snapshot(torch, model=None):
+    """Record numerical settings at the point of use, without modifying them."""
+    cuda = torch.backends.cuda
+    result = {"torch": str(torch.__version__), "cuda": torch.version.cuda,
+              "matmul_allow_tf32": bool(cuda.matmul.allow_tf32),
+              "cudnn_allow_tf32": bool(torch.backends.cudnn.allow_tf32),
+              "cudnn_enabled": bool(torch.backends.cudnn.enabled),
+              "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
+              "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
+              "deterministic_algorithms": bool(torch.are_deterministic_algorithms_enabled()),
+              "float32_matmul_precision": torch.get_float32_matmul_precision(),
+              "cuda_autocast": bool(torch.is_autocast_enabled("cuda")),
+              "flash_sdp": bool(cuda.flash_sdp_enabled()),
+              "memory_efficient_sdp": bool(cuda.mem_efficient_sdp_enabled()),
+              "math_sdp": bool(cuda.math_sdp_enabled())}
+    if model is not None:
+        result["attention_implementation"] = getattr(model.config, "_attn_implementation", None)
+    return result
+
+
 class FrozenMuseTokens:
     def __init__(self, checkpoint, layer_index=26):
         import torch
