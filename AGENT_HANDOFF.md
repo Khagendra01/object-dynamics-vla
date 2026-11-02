@@ -7,8 +7,10 @@ Muse-token/SAM/state connector into the native pretrained SmolVLA expert. A
 single CPU native-interface parity case passed exactly, 250-step connector
 alignment and 250-step joint motor adaptation completed, and the step-200
 checkpoint was evaluated on 16 reused selection windows. Live Muse/SAM and
-the native expert executed a 30-step reused-validation pilot with no task
-success at that cap; no 200-step, matched M0/M1/M2, or dynamics result exists.
+the native expert executed a 200-step reused-validation rollout with no task
+success. A first 200-step attempt timed out after 136 actions; the successful
+completion reran from the beginning, with extended timeout. No matched M0/M1/M2
+or dynamics result exists for this combined model.
 One earlier smoke attempt had unexplained nonidentical Muse features despite
 matching image and token IDs; later runs passed exact parity. Keep the guard.
 Remaining Modal credit is unknown; check before further paid work. The saved

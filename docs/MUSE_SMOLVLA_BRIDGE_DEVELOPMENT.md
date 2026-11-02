@@ -106,6 +106,30 @@ smoke and 30-step pilot are under the same prefix with suffixes `smoke2` and
 video. The video was also copied to
 `/home/kgen/Desktop/muse_sam_smolvla_pilot30.mp4`.
 
+### Full-length follow-up on the same reused state
+
+After the pilot, a separate run on the same `episode_0014` completed **200
+actions without task success**. It used the same live frozen Muse, live frozen
+SAM and step-200 pretrained-expert/connector checkpoint; no simulator masks
+were supplied. The initial Muse features were bit-identical to the cache, and
+incremental SAM exactly matched observed-prefix replay at steps 0, 9, 29, 69,
+99, 149 and 199. The final image shows the milk carton outside the basket. This
+is one reused development initialization, not an independent success rate or a
+controlled comparison of the combined model against the standalone policy.
+Elapsed time was 815 seconds including initialization and verification; peak
+allocated GPU memory in the Muse/SAM container was 65.96 GiB, with the native
+expert on a separate T4. The complete report, action trace, frames and video
+are under `/data/eval/muse_smolvla_live_episode_0014_full200v2/`; the video is
+also at `/home/kgen/Desktop/muse_sam_smolvla_full200.mp4`.
+
+The initial full-length attempt hit its 900-second Modal timeout after 136
+recorded actions, with no success at any recorded step. Its partial trace and
+137 pre-action frames remain at
+`/data/eval/muse_smolvla_live_episode_0014_full200v1/`; the recovered video is
+`/home/kgen/Desktop/muse_sam_smolvla_interrupted136.mp4`. It is not a completed
+200-step trial. The rerun raised the timeout to 2,100 seconds and now commits
+progress every 25 actions; it starts from the initial state, not a resume.
+
 ## Verification, limitations and next steps
 
 - The Modal CPU suite passed 38 tests, including invalid-input masking and
@@ -113,14 +137,14 @@ video. The video was also copied to
 - Connector and action training peaked at 2.26 GiB reported allocated T4 GPU
   memory; this excludes live Muse and SAM. Co-resident BF16 Muse/SAM previously
   needed about 66 GiB. A 32 GiB inference deployment remains unverified.
-- Diagnose the intermittent first-frame feature mismatch and run full 200-step
-  development rollouts, then paired states and seeds before claiming success.
+- Diagnose the intermittent first-frame feature mismatch and run paired states
+  and seeds before drawing conclusions about task performance.
 - Run full-validation and image/instruction counterfactuals; test random-expert
   versus pretrained expert, M0/M1/M2 and dynamics-vs-persistence with matched
   seeds/budgets. The proposed model may still ignore important information or
   fail despite lower offline MSE.
 - The credit balance was not exposed by the Modal CLI. Current November billing
-  was approximately $8.18 credits applied, with the prior cycle separate; paid
+  was approximately $10.76 credits applied, with the prior cycle separate; paid
   live rollouts require checking the remaining allocation first.
 
 Reproduction uses fresh suffixes; existing artifacts are not overwritten:
@@ -131,6 +155,7 @@ Reproduction uses fresh suffixes; existing artifacts are not overwritten:
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_bridge.py --steps 250 --suffix NEWACTION --phase action --init-bridge NEWALIGN
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_eval.py --suffix NEWSUFFIX
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_live.py --max-steps 30 --suffix NEWPILOT
+~/modal-venv/bin/modal run scripts/modal_muse_smolvla_live.py --max-steps 200 --suffix NEWFULL --episode episode_0014
 ~/modal-venv/bin/modal run scripts/modal_vla_tests.py
 ```
 

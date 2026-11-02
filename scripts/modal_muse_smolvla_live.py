@@ -84,7 +84,7 @@ class Policy:
 
 
 @app.function(image=vision_image, gpu="A100-80GB", cpu=4, memory=131072, volumes={"/data": volume},
-              timeout=900, max_containers=1, single_use_containers=True)
+              timeout=2100, max_containers=1, single_use_containers=True)
 def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014"):
     import hashlib
     import json
@@ -182,6 +182,9 @@ def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014
                            "success": success, "checkpoint_step": result["checkpoint_step"],
                            "checkpoint_sha256": result["checkpoint_sha256"]})
             (dest / "trace.json").write_text(json.dumps(traces, indent=2) + "\n")
+            if (step + 1) % 25 == 0:
+                volume.commit()
+                print(json.dumps({"completed_steps": step + 1, "success": success, "elapsed_seconds": time.monotonic() - started}), flush=True)
             if success or done: break
         env.sim.forward(); Image.fromarray(np.asarray(env.sim.render(camera_name="agentview", width=512, height=512))).save(frames / f"{len(traces):06}.jpg", quality=98)
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", "20", "-i", str(frames / "%06d.jpg"),
