@@ -1,6 +1,6 @@
 # Muse/SAM to pretrained SmolVLA: development integration
 
-This is an **offline development result, not a successful closed-loop policy**.
+This is a **development result, not a successful task-completion result**.
 The implemented path feeds cached frozen Muse block-26 tokens, normalized robot
 state and cached frozen SAM measurements into trainable connectors, which
 generate per-layer key/value prefixes for the native SmolVLA action expert.
@@ -9,7 +9,7 @@ action/time projections were initialized from the existing 1,000-update
 LIBERO-adapted SmolVLA checkpoint, itself strictly initialized from the pinned
 released robot checkpoint. SmolVLM was a teacher during connector alignment;
 the combined student action predictions reported below use Muse/SAM inputs, not
-SmolVLM perception. This has not yet been wired to a live Muse/SAM rollout.
+SmolVLM perception. A 30-action live Muse/SAM rollout is described below.
 
 ## Native-interface verification
 
@@ -70,7 +70,41 @@ absolute `[.0151,.0594,.0545,.0026,.0062,.0030,.0357]`; zeroing Muse features
 changed them by `[.1304,.4196,.4007,.0226,.0177,.0141,.4075]`. These are input
 sensitivity checks, not proof that the signals are correct or beneficial. The
 full diagnostic is `/data/eval/muse_smolvla_bridge_action250v1_offline16_v1.json`.
-No held-out test initializations or closed-loop runs were used for this model.
+No held-out test initializations were used for this model.
+
+## Live Muse/SAM closed-loop pilot
+
+`scripts/modal_muse_smolvla_live.py` connects the simulator, frozen Muse and
+SAM in a Python 3.11 A100-80GB container to the actual pretrained-expert
+checkpoint in a separate Python 3.12 T4 policy service. The policy receives the
+current Muse layer-26 features, causal SAM history and state, samples a 50-action
+chunk and executes the first action before taking a new observation. The
+simulator provides no oracle masks. The prompt, object points and image/state
+normalization are the same development setup used previously.
+
+On previously used validation `episode_0014` / `demo_21`, the combined model
+executed **30 steps, with no task success by the 30-step cap**. This is a short
+pilot, not a failed 200-step trial or a success-rate estimate. The final RGB
+shows the milk outside the basket; the trace includes clipped robot actions.
+The step-200 checkpoint SHA-256 is
+`3791c0672bf9ff2f31f395a9d7cc50e7fc3ef3558f7d71a6d4e1430e52834f1f`.
+The first live Muse tokens matched the historical cache bit-for-bit; incremental
+SAM matched independent observed-prefix replay at steps 0, 9 and 29. Peak
+allocated memory in the Muse/SAM container was 62.20 GiB; total duration was
+193.9 seconds including model startup and prefix checks. The native expert ran
+on a separate T4, so that number is not total system memory. The initial image
+hash matched the demonstration source and earlier development rollouts.
+
+The first one-step attempt stopped before acting because its Muse features did
+not exactly match, although its input IDs, attention mask, positions and RGB
+hash matched. A second one-step attempt and the 30-step run passed exact parity;
+the first discrepancy remains unexplained, and its failure artifact is kept at
+`/data/eval/muse_smolvla_live_episode_0014_smoke1/`. Do not drop the strict
+parity check or assume that every run is reproducible. The successful one-step
+smoke and 30-step pilot are under the same prefix with suffixes `smoke2` and
+`pilot30`; the latter contains `report.json`, `trace.json`, RGB frames and a
+video. The video was also copied to
+`/home/kgen/Desktop/muse_sam_smolvla_pilot30.mp4`.
 
 ## Verification, limitations and next steps
 
@@ -79,16 +113,14 @@ No held-out test initializations or closed-loop runs were used for this model.
 - Connector and action training peaked at 2.26 GiB reported allocated T4 GPU
   memory; this excludes live Muse and SAM. Co-resident BF16 Muse/SAM previously
   needed about 66 GiB. A 32 GiB inference deployment remains unverified.
-- Implement a live policy service in the Python 3.12 LeRobot environment and
-  connect it to the Python 3.11 LIBERO/Muse/SAM environment, checking live
-  first-frame Muse cache parity, prefix-only SAM tracking and state/action
-  normalization. Then run paired development rollouts before claiming success.
+- Diagnose the intermittent first-frame feature mismatch and run full 200-step
+  development rollouts, then paired states and seeds before claiming success.
 - Run full-validation and image/instruction counterfactuals; test random-expert
   versus pretrained expert, M0/M1/M2 and dynamics-vs-persistence with matched
   seeds/budgets. The proposed model may still ignore important information or
   fail despite lower offline MSE.
 - The credit balance was not exposed by the Modal CLI. Current November billing
-  was approximately $7.6 credits applied, with the prior cycle separate; paid
+  was approximately $8.18 credits applied, with the prior cycle separate; paid
   live rollouts require checking the remaining allocation first.
 
 Reproduction uses fresh suffixes; existing artifacts are not overwritten:
@@ -98,6 +130,7 @@ Reproduction uses fresh suffixes; existing artifacts are not overwritten:
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_bridge.py --steps 250 --suffix NEWALIGN
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_bridge.py --steps 250 --suffix NEWACTION --phase action --init-bridge NEWALIGN
 ~/modal-venv/bin/modal run scripts/modal_muse_smolvla_eval.py --suffix NEWSUFFIX
+~/modal-venv/bin/modal run scripts/modal_muse_smolvla_live.py --max-steps 30 --suffix NEWPILOT
 ~/modal-venv/bin/modal run scripts/modal_vla_tests.py
 ```
 

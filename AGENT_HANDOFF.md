@@ -6,11 +6,13 @@ Latest continuation: `docs/MUSE_SMOLVLA_BRIDGE_DEVELOPMENT.md` records a real
 Muse-token/SAM/state connector into the native pretrained SmolVLA expert. A
 single CPU native-interface parity case passed exactly, 250-step connector
 alignment and 250-step joint motor adaptation completed, and the step-200
-checkpoint was evaluated on 16 reused selection windows. This is offline only:
-no live Muse/SAM integration, closed-loop success, matched M0/M1/M2, or dynamics
-result exists for the combined model. The user explicitly wants the whole system
-finished. Remaining Modal credit is unknown; check before paid live rollouts.
-The saved optimizer/RNG states cannot yet be resumed by this driver.
+checkpoint was evaluated on 16 reused selection windows. Live Muse/SAM and
+the native expert executed a 30-step reused-validation pilot with no task
+success at that cap; no 200-step, matched M0/M1/M2, or dynamics result exists.
+One earlier smoke attempt had unexplained nonidentical Muse features despite
+matching image and token IDs; later runs passed exact parity. Keep the guard.
+Remaining Modal credit is unknown; check before further paid work. The saved
+optimizer/RNG states cannot yet be resumed by this driver.
 
 Latest: `docs/SMOLVLA_PRETRAINED_LIBERO.md` records the downloaded official
 robot-pretrained SmolVLA checkpoint and 500/1,000-update LIBERO adaptations.
