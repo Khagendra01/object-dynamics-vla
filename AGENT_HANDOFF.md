@@ -7,12 +7,14 @@ native SmolVLA owns actions, and SAM supplies passive overlays. Stop bridge and
 dynamics training for this milestone. Run `python -m scripts.native_demo --request
 "Put the milk in the basket" --output outputs/milk-demo`; see `docs/NATIVE_DEMO.md`.
 
-The bounded milk application includes the existing development initializations,
-viewer and artifact downloads. Local verification passed 44 tests, compilation,
-Modal CLI import and a synthetic UI/video run. No new GPU execution is claimed:
-this workspace's preflight failed with missing Modal credentials. Execute from
-the authenticated environment and existing volume, preserve logs and report
-the actual outcome. No new training or feature cache is needed. Motor inputs
+The authenticated full application succeeded on reused development episode
+0014 at step 135. Muse selected the task once, native SmolVLA controlled actions,
+and SAM produced passive overlays. The viewer and artifacts are at
+`outputs/milk-demo-retry/`; the preserved initial attempt in `outputs/milk-demo/`
+failed before action because its simulator worker lost in-memory state while
+the GPU workers started. The image-mount ordering and actor idle windows were
+fixed before the successful retry. See `docs/NATIVE_DEMO.md`. This is not a
+fresh-state success rate. No training or feature cache is needed. Motor inputs
 remain independent of Muse/SAM outputs; native-demo tests enforce this boundary.
 
 ## 2026-10-30 continuation

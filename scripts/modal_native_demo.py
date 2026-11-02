@@ -23,7 +23,7 @@ def demo_sources(image, existing=()):
 
 policy_image = demo_sources(reference_base.apt_install("fonts-dejavu-core").add_local_python_source("odvla"))
 sim_image = demo_sources(runtime_base.add_local_python_source("odvla"))
-tracking_image = demo_sources(tracking_base.apt_install("fonts-dejavu-core"),
+tracking_image = demo_sources(tracking_base,
                               existing=("__init__.py", "modal_muse_motor_rollout.py"))
 MUSE = "/data/checkpoints/muse-glimmer-30b/cec94fcfd6512f2cfe708138c32533b346ea4f69"
 SOURCE = "/data/checkpoints/smolvla-base/5e8d12a6e2975b0e5e5fce7c8caf47c371d257b6"
@@ -98,7 +98,7 @@ def select_skill(request):
 
 
 @app.cls(image=policy_image, gpu="T4", cpu=2, memory=16384, timeout=300,
-         scaledown_window=60, volumes={"/data": volume}, max_containers=1)
+         scaledown_window=1200, volumes={"/data": volume}, max_containers=1)
 class NativePolicy:
     @modal.enter()
     def load(self):
@@ -155,7 +155,7 @@ class NativePolicy:
 
 
 @app.cls(image=sim_image, cpu=4, memory=8192, timeout=300,
-         volumes={"/data": volume}, max_containers=1)
+         scaledown_window=1200, volumes={"/data": volume}, max_containers=1)
 class Simulator:
     @modal.method()
     def initialize(self, run_name, episode):
@@ -220,7 +220,7 @@ class Simulator:
 
 
 @app.cls(image=tracking_image, gpu="A100-80GB", cpu=4, memory=16384, timeout=300,
-         scaledown_window=60, volumes={"/data": volume}, max_containers=1)
+         scaledown_window=1200, volumes={"/data": volume}, max_containers=1)
 class Tracking:
     @modal.enter()
     def load(self):

@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 23027,
-      "sha256": "a67ec78081c83962767052d29c1747f327ec70904da5f2223b1447cbbbf362fd"
+      "bytes": 23171,
+      "sha256": "72f5557be567318c8be551554c5d40a0002eeea73f71eda894a8539b5f19d75f"
     },
     {
       "path": "LICENSE",
@@ -79,8 +79,8 @@
     },
     {
       "path": "docs/NATIVE_DEMO.md",
-      "bytes": 5059,
-      "sha256": "ee7482f2740d3d9caa78afd2dc5c81a07fe904381b9e6d27a71bd282c04ec004"
+      "bytes": 6067,
+      "sha256": "9014840d475199c02b7cc5afe7dcd56a882da9900041f16ac478d5e9d35cb0f9"
     },
     {
       "path": "docs/SAM_CLOSED_LOOP_PILOT.md",
@@ -354,8 +354,8 @@
     },
     {
       "path": "scripts/modal_native_demo.py",
-      "bytes": 21939,
-      "sha256": "895b5f55f8949a6a667135010e10a8f1019e51e30c215d4e99080f443ddcc5e8"
+      "bytes": 21933,
+      "sha256": "6771fcc63bdd3e4f57d1b1940bbe79da7a92fd10d4a7c8928c216c0cca573506"
     },
     {
       "path": "scripts/modal_odvla.py",

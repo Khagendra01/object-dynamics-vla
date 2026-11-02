@@ -89,18 +89,32 @@ overlays, MP4 encoding, trace/report and viewer creation. It runs no Muse, SAM,
 robot policy, simulator physics or robot and does not claim task success.
 It requires the core dependencies and `ffmpeg`.
 
-## Verification and next execution
+## Verified development execution
 
-Implemented and checked in a CPU workspace without Modal credentials. The
-new GPU application has **not** been executed here. Earlier native-policy
-successes remain prior evidence, not results for this entry point.
+On the authenticated Modal workspace, the default request `Put the milk in
+the basket` was routed by Muse to `milk_in_basket`. The native policy completed
+the simulator task on reused development `episode_0014` at step **135**; 47
+steps had at least one clipped channel. SAM supplied passive tracking overlays,
+and all 135 recorded observations reported `tracking`; no simulator masks
+were used. The status is the simulator's success predicate, not an independent
+success rate or evidence of physical-robot capability. The control loop took
+679.6 wall-clock seconds, excluding the 47.1-second Muse selection, while the
+video plays at 20 simulated frames per second.
 
-Local checks: 44 tests passed; source compilation passed; Modal 1.6.3 imported
-the app and displayed its CLI; a synthetic run produced videos and a viewer.
-Remote preflight stopped at `Token missing. Could not authenticate client.`
-No GPU job was launched.
+Open `outputs/milk-demo-retry/index.html` for the successful run and its
+downloaded video, final image, report and action trace. The remote artifacts
+are at `/data/demos/native/demo-70626c3cae09/`. The original output path
+`outputs/milk-demo/` contains the preserved failed first attempt: after Muse
+selected the task, its simulator worker lost in-memory state while the GPU
+workers started and no actions were executed. The actor idle windows were
+extended for the retry. The preflight also exposed an incompatible Modal image
+build step after local mounts; the tracking image now uses its existing font
+fallback without adding an image-build step after mounts.
+
+Verification: authenticated preflight found all required artifacts, 44 tests
+passed on Modal CPU, source compilation passed, and the actual application
+successfully downloaded all seven viewer artifacts on the retry.
 
 Tests cover bounded routing, constrained tokens, unchanged action inputs when
 SAM fails, original noise, clipping, invalid-action rejection and HTML escaping.
-They do not certify model generation, cloud builds or new task completion.
-The next action on the connected machine is the full command above.
+They are not a substitute for evaluation on fresh states or different tasks.
