@@ -2,6 +2,18 @@
 
 ## 2026-10-30 continuation
 
+Latest: `docs/BRIDGE_REPAIR_FROZEN.md` records 1,250 updates / 5,000 window
+presentations with all 4,887 train windows covered, training only the bridge
+against a frozen adapted SmolVLA teacher at ordinary and student denoising
+states. On all 1,211 reused validation frames teacher-gripper sign agreement
+improved from 81.50% to 96.45%; this is fidelity, not task success. On the same
+reused initial state and identical saved per-step noise, the native policy
+succeeded at 135 steps and the repaired Muse/SAM bridge failed at the 200-step
+cap. The paired audit verified the initial state, initial RGB and all 135
+overlapping noise hashes; videos and reports are in the new document. On one
+late frame of the old failed trajectory the repaired bridge still reverses the
+teacher's gripper sign. No dynamics objective was used. 39 CPU tests passed.
+
 Latest: `docs/BRIDGE_PAIRED_NOISE_DIAGNOSTIC.md` reports a four-way offline
 matched-noise comparison on six observations reconstructed from the failed
 combined rollout. The native original output matched official LeRobot and its

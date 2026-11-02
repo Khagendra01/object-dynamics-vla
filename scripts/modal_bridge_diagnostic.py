@@ -124,7 +124,7 @@ def prepare():
 
 @app.function(image=policy_image, gpu="T4", cpu=4, memory=24576, timeout=900,
               volumes={"/data": volume}, max_containers=1, single_use_containers=True)
-def evaluate(suffix: str = "v2"):
+def evaluate(suffix: str = "v3"):
     import hashlib
     import json
     from pathlib import Path
@@ -148,6 +148,7 @@ def evaluate(suffix: str = "v2"):
     adapted = Path("/data/runs/smolvla_libero_milk1000v1")
     trained = Path("/data/runs/muse_smolvla_bridge_action250v1")
     aligned = Path("/data/runs/muse_smolvla_bridge_alignment250v1")
+    repaired = Path("/data/runs/muse_smolvla_bridge_repair1250v1")
     meta = read_json(trained / "configuration.json")
     if file_hash(source / "model.safetensors") != meta["source_checkpoint_sha256"] or file_hash(adapted / "weights_best.pt") != meta["adapted_checkpoint_sha256"]:
         raise ValueError("Native checkpoint provenance mismatch")
@@ -168,9 +169,11 @@ def evaluate(suffix: str = "v2"):
     if set(updated["policy_trainable"]) != {n for n in params if n.startswith(prefixes)}:
         raise ValueError("Incomplete updated expert tensor set")
     original = {n: p.detach().clone() for n, p in params.items() if n in updated["policy_trainable"]}
-    bridges = {"aligned": MuseSamPrefix().cuda().eval(), "updated": MuseSamPrefix().cuda().eval()}
+    bridges = {"aligned": MuseSamPrefix().cuda().eval(), "updated": MuseSamPrefix().cuda().eval(),
+               "repaired": MuseSamPrefix().cuda().eval()}
     bridges["aligned"].load_state_dict(aligned_state["bridge"], strict=True)
     bridges["updated"].load_state_dict(updated["bridge"], strict=True)
+    bridges["repaired"].load_state_dict(torch.load(repaired / "weights_best.pt", map_location="cuda", weights_only=True)["bridge"], strict=True)
     pre, _ = make_smolvla_pre_post_processors(cfg, {
         OBS_STATE: {"mean": torch.from_numpy(stats["robot_mean"]), "std": torch.from_numpy(stats["robot_std"])},
         ACTION: {"mean": torch.from_numpy(stats["actions_mean"]), "std": torch.from_numpy(stats["actions_std"])}})
@@ -192,7 +195,8 @@ def evaluate(suffix: str = "v2"):
             noise = torch.from_numpy(sample["noise"]).cuda()
             if tuple(noise.shape) != (1, 50, 32): raise ValueError("Bad stored noise")
             configs = (("native_original", "original", "native"), ("bridge_frozen", "original", "aligned"),
-                       ("native_updated", "updated", "native"), ("bridge_updated", "updated", "updated"))
+                       ("bridge_repaired_frozen", "original", "repaired"), ("native_updated", "updated", "native"),
+                       ("bridge_updated", "updated", "updated"))
             outputs = {}; reference_x = []; reference_v = []; official_error = None
             for name, version, conditioning in configs:
                 apply(version)
@@ -244,7 +248,8 @@ def evaluate(suffix: str = "v2"):
     result = {"source": manifest, "frames": results, "note": "reused failed-rollout observations; offline only; same stored noise per configuration",
               "updated": "expert plus state/action/time projections changed during joint adaptation",
               "native_checkpoint_sha256": file_hash(adapted / "weights_best.pt"),
-              "aligned_bridge_sha256": file_hash(aligned / "training_state.pt"), "updated_checkpoint_sha256": file_hash(trained / "weights_best.pt")}
+              "aligned_bridge_sha256": file_hash(aligned / "training_state.pt"), "updated_checkpoint_sha256": file_hash(trained / "weights_best.pt"),
+              "repaired_bridge_sha256": file_hash(repaired / "weights_best.pt")}
     output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n"); volume.commit(); return result
 
 
