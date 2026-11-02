@@ -1,5 +1,18 @@
 # Object Dynamics VLA — dataset-first experiment kit
 
+**Run the native-policy application:**
+
+```bash
+python -m scripts.native_demo --request "Put the milk in the basket" --output outputs/milk-demo
+```
+
+Muse selects the available skill, intact native SmolVLA generates actions, and
+SAM supplies tracking overlays. This uses the existing authenticated Modal
+environment and checkpoints. Open the downloaded `outputs/milk-demo/index.html`.
+See [the run guide](docs/NATIVE_DEMO.md) for setup, explicit component bypasses,
+local dry run and verification limits. The new entry point is locally checked;
+its cloud task run remains to be executed on the authenticated machine.
+
 Start here. This package turns our architecture discussion into a small, executable
 research experiment that you or your coding agent can continue on your PC.
 

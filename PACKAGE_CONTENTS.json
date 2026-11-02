@@ -14,8 +14,8 @@
     },
     {
       "path": "AGENT_HANDOFF.md",
-      "bytes": 15285,
-      "sha256": "faf2093fb58fb601aa94dde16e1e3950a021a9305de2263f9f0c1daf9869d598"
+      "bytes": 23027,
+      "sha256": "a67ec78081c83962767052d29c1747f327ec70904da5f2223b1447cbbbf362fd"
     },
     {
       "path": "LICENSE",
@@ -24,8 +24,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13980,
-      "sha256": "7565e22b5d68ed579f21f096618ce243bdd7a5e7bf548d29c9301989e2bb43a9"
+      "bytes": 14910,
+      "sha256": "0362372bf968d541cf95886041a0ece79a64ebc696bf8058f21df9102f7ff635"
     },
     {
       "path": "configs/muse_sam_v1.json",
@@ -78,6 +78,11 @@
       "sha256": "56414bda05eeb5d871b5df6fa133138222dce4078b345b90a7b6ca7f7c165450"
     },
     {
+      "path": "docs/NATIVE_DEMO.md",
+      "bytes": 5059,
+      "sha256": "ee7482f2740d3d9caa78afd2dc5c81a07fe904381b9e6d27a71bd282c04ec004"
+    },
+    {
       "path": "docs/SAM_CLOSED_LOOP_PILOT.md",
       "bytes": 4999,
       "sha256": "2a3c2c4894ac2a7f1aa160a4c599c9e968046a9b46edb241b3c3de69377a658f"
@@ -126,6 +131,11 @@
       "path": "odvla/data.py",
       "bytes": 10678,
       "sha256": "57cebe951d6da1072dc5b7cfb2ca5e1db4febb6b73b8e69cd6d8cb4eb815bfb2"
+    },
+    {
+      "path": "odvla/demo.py",
+      "bytes": 10814,
+      "sha256": "366711f330ad3db3da57a39a5a4d596b05584918b1a2b577852ef5cbdc75a85b"
     },
     {
       "path": "odvla/diagnostics.py",
@@ -343,6 +353,11 @@
       "sha256": "3049b6af1070ee217a1eb12f68e9727d0e7435552a770b3644c660a4c6c91fd8"
     },
     {
+      "path": "scripts/modal_native_demo.py",
+      "bytes": 21939,
+      "sha256": "895b5f55f8949a6a667135010e10a8f1019e51e30c215d4e99080f443ddcc5e8"
+    },
+    {
       "path": "scripts/modal_odvla.py",
       "bytes": 1356,
       "sha256": "bf837ed096121785242935d4234e6bb1121809b4510568201d22127fefee8a81"
@@ -443,6 +458,11 @@
       "sha256": "dd4438e6375733fc1e16db9c738a38464502339c10d8ea6b5d08ffe3e4193852"
     },
     {
+      "path": "scripts/native_demo.py",
+      "bytes": 5445,
+      "sha256": "74ed7c0c700343ab14dafdf720aeeae68dc483bf2a0896ea61105aa771507372"
+    },
+    {
       "path": "scripts/run_ablations.py",
       "bytes": 2179,
       "sha256": "67f88ff2716cfcae8152c2879a0e60ff7c29c854394d7452611582d447579325"
@@ -476,6 +496,11 @@
       "path": "tests/test_integrations.py",
       "bytes": 3505,
       "sha256": "0f19a1ebd378a0d93ad53e0eecf2a0d7d90cc03b377b57de1c100101b560f380"
+    },
+    {
+      "path": "tests/test_native_demo.py",
+      "bytes": 4609,
+      "sha256": "39057085dc42a0a3e43595848cf01783e9a4f2281f8a52dc21debf98fc3b1589"
     },
     {
       "path": "tests/test_sam_prefix.py",

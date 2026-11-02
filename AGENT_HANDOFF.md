@@ -1,5 +1,20 @@
 # Coding-agent handoff
 
+## Current priority: runnable native-policy application
+
+The owner chose the fast application path: Muse routes a task once, complete
+native SmolVLA owns actions, and SAM supplies passive overlays. Stop bridge and
+dynamics training for this milestone. Run `python -m scripts.native_demo --request
+"Put the milk in the basket" --output outputs/milk-demo`; see `docs/NATIVE_DEMO.md`.
+
+The bounded milk application includes the existing development initializations,
+viewer and artifact downloads. Local verification passed 44 tests, compilation,
+Modal CLI import and a synthetic UI/video run. No new GPU execution is claimed:
+this workspace's preflight failed with missing Modal credentials. Execute from
+the authenticated environment and existing volume, preserve logs and report
+the actual outcome. No new training or feature cache is needed. Motor inputs
+remain independent of Muse/SAM outputs; native-demo tests enforce this boundary.
+
 ## 2026-10-30 continuation
 
 Latest: `docs/BRIDGE_REPAIR_FROZEN.md` records 1,250 updates / 5,000 window
