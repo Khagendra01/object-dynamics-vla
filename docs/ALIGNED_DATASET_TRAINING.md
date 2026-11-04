@@ -45,6 +45,11 @@ If training stops at its time budget, resume with the **same** training contract
 python -m modal run -m scripts.modal_muse_dataset_train --stage train --resume --max-seconds 1800 --profile khagendrakhatri365
 ```
 
+For a detached chunk that does not require the local CLI to stay connected, use
+`modal run --detach` and add `--background` to spawn the training call. Inspect
+the Modal app and the saved report before launching another chunk; a spawned
+chunk does not automatically resume itself.
+
 `last.pt` restores prefix/expert/projection weights, AdamW state, shuffled epoch
 order/cursor and NumPy generator, plus Torch CPU/CUDA RNG. Changing batch size,
 accumulation, data/cache or initialization source rejects resume. The target

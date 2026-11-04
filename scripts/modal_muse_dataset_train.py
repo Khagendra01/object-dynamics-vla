@@ -422,11 +422,15 @@ def train(dataset: str = "muse_aligned_development_v1", cache_name: str = "muse_
 def main(stage: str = "cache", dataset: str = "muse_aligned_development_v1", cache_name: str = "muse_aligned_nf4_v1",
          name: str = "muse_aligned_dataset_v1", updates: int = 1000, batch_size: int = 8,
          accumulation: int = 8, max_seconds: int = 600, save_every: int = 250,
-         resume: bool = False, init_fit: str = "quantized_muse_aligned7500_v1"):
+         resume: bool = False, init_fit: str = "quantized_muse_aligned7500_v1", background: bool = False):
     if stage == "cache":
         print(cache_nf4.remote(dataset, cache_name, max_seconds))
     elif stage == "train":
-        print(train.remote(dataset, cache_name, name, updates, batch_size, accumulation,
-                           max_seconds, save_every, resume, init_fit))
+        args = (dataset, cache_name, name, updates, batch_size, accumulation,
+                max_seconds, save_every, resume, init_fit)
+        if background:
+            print(f"Spawned training call: {train.spawn(*args).object_id}")
+        else:
+            print(train.remote(*args))
     else:
         raise ValueError("Use --stage cache or --stage train")
