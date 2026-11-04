@@ -8,6 +8,8 @@ import numpy as np
 from odvla.vla.bounded_features import BoundedFeatureCache, frozen_feature_key
 from odvla.vla.libero_object_tasks import registry
 from odvla.vla.multitask_sampling import TaskBalancedSampler
+from scripts.collect_ten_task_smokes import collect
+from scripts.run_ten_task_smokes import CHECKPOINT
 
 
 def key(task="milk", instruction="pick up the milk", frame=0):
@@ -72,6 +74,21 @@ class MultitaskScalingTests(unittest.TestCase):
             cache = BoundedFeatureCache(temp, 100)
             self.assertFalse(cache.put(key(), {"feature": np.arange(500, dtype=np.uint8)}))
             self.assertEqual(cache.size_bytes, 0)
+
+    def test_smoke_aggregation_keeps_failed_attempt_and_requires_parity(self):
+        parity = {k: True for k in ("rgb", "muse", "robot", "sam", "sam_valid")}
+        original = {"checkpoint_sha256": CHECKPOINT, "results": {
+            t["task_id"]: {"task_id": t["task_id"], "status": "completed", "steps": 30,
+                           "success": False, "initial_parity": dict(parity)} for t in registry()["tasks"]}}
+        original["results"]["libero_object_bbq_sauce"].update(status="failed", steps=0,
+                                                                 initial_parity={**parity, "sam": False})
+        retry = {"task_id": "libero_object_bbq_sauce", "checkpoint_sha256": CHECKPOINT,
+                 "status": "completed", "steps": 30, "success": False, "initial_parity": dict(parity)}
+        result = collect(original, retry)
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(len(result["tasks"]["libero_object_bbq_sauce"]["attempts"]), 2)
+        original["results"]["libero_object_milk"]["initial_parity"] = {}
+        self.assertEqual(collect(original, retry)["status"], "incomplete")
 
 
 if __name__ == "__main__":

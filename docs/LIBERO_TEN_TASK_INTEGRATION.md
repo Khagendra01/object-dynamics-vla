@@ -51,7 +51,9 @@ closed-loop evaluation were executed in this integration.
   prefix is not cached or frozen. The cache key includes task, episode, frame,
   instruction, image checksum, model and processor revisions, date, and
   backend precision identity. This is a single-worker cache, not a distributed
-  cache service.
+  cache service. The 2 GiB limit applies only to this new feature cache, not
+  the entire volume: original model weights, source data, and the older full
+  milk cache still occupy storage separately.
 
 ## Executed integration result
 
@@ -101,15 +103,61 @@ tracking is also checked against prefix replay at selected steps. The task's
 instruction is given to Muse and the manually selected target/basket points to
 SAM; the action expert is shared rather than switched by task.
 
-The initial milk smoke executed 30 actions, passed initial parity, and did not
-reach success by that cutoff. Nine further 30-action smokes are being run with
-`scripts/run_ten_task_smokes.py`, which limits parallel jobs and checks the
-delayed Modal billing summary before launching more. Its `--max-credit-used`
-setting is a conservative operational guard, **not** a hard invoice cap. The
-smokes use the selected training demonstrations and manually supplied points;
-the action cutoff is too short to call a task unsolvable. The local supervisor
-needs the computer to stay awake. Their actual per-task reports and any
-failures must be checked before making a completion claim.
+All ten tasks completed a **30-action** smoke on their selected training
+initialization after passing initial parity checks against the frozen 20-update shared
+checkpoint. No task reached simulator success within those 30 actions. This
+verifies the end-to-end action loop, not task success or failure: the cutoff is
+shorter than the 166 actions needed by the earlier milk success. It does not
+measure held-out generalization. Each row below corresponds to one selected
+training demo; no per-task reliability rate is implied.
+
+| Task | Training demo | Windows sampled in 20 updates | Smoke actions | Success by action 30 |
+| --- | --- | ---: | ---: | --- |
+| Alphabet soup | demo_2 | 111 | 30 | No |
+| BBQ sauce | demo_9 | 134 | 30 | No |
+| Butter | demo_30 | 128 | 30 | No |
+| Chocolate pudding | demo_25 | 138 | 30 | No |
+| Cream cheese | demo_9 | 128 | 30 | No |
+| Ketchup | demo_11 | 124 | 30 | No |
+| Milk | demo_0 | 116 | 30 | No |
+| Orange juice | demo_14 | 135 | 30 | No |
+| Salad dressing | demo_49 | 141 | 30 | No |
+| Tomato sauce | demo_22 | 125 | 30 | No |
+
+`scripts/run_ten_task_smokes.py` limits parallel jobs and checks the delayed
+Modal billing summary before launching more. Its `--max-credit-used` setting
+is a conservative operational guard, **not** a hard invoice cap. The local
+supervisor needs the computer to stay awake. Individual reports are stored on
+the Modal volume under `/eval/ten_task_<object>_smoke_v1/`; the BBQ A100 retry
+uses `/eval/ten_task_bbq_sauce_a100_smoke_v1/`. The local
+`outputs/ten_task_smoke_results.json` includes the failed original BBQ attempt
+as well as the successful 30-action integration retry.
+
+The initial BBQ-sauce smoke stopped before acting because H200 SAM's basket
+measurement differed from the A100-prepared training measurement by at most
+0.000097. A subsequent one-action diagnostic using frozen SAM on A100 restored
+exact initial parity. The 30-action BBQ retry used that A100 tracker while
+Muse remained on H200; it executed all 30 actions without reaching the success
+condition. The exact parity gate was not relaxed, and this completed retry is
+reported separately from the original failed attempt.
+
+## Milk retention check
+
+The frozen 20-update ten-task checkpoint was also run on milk's `demo_0` for
+up to 200 actions with seed base 7. It passed initial RGB, Muse, robot, SAM,
+and visibility parity checks, but **did not reach simulator success in 200
+actions**. The earlier frozen milk checkpoint succeeded in 166 actions on the
+same initial state. The saved noise hashes match for all 166 corresponding
+actions; the initial robot and SAM measurements also match exactly. The
+sampled first actions differ by a maximum of about 0.299 in a raw action
+channel. This is evidence of a changed outcome for one matched seed and
+initialization, not a statistical estimate of forgetting or a causal isolation
+of dataset coverage from the additional training updates.
+
+The retention report and video are stored at
+`/eval/ten_task_milk_retention_seed7_v1/` on the Modal volume. The successful
+original milk checkpoint remains unchanged and is the separately documented
+`fed8976c…` baseline.
 
 ## Remaining work
 
@@ -120,4 +168,4 @@ especially the occluded target, and develop instruction-grounded autonomous
 target selection. Run reserved-initialization, per-task closed-loop rollouts,
 same-scene instruction comparisons and retention tests with the actual new
 checkpoint. Two updates or a decreasing training loss cannot establish those
-outcomes. CPU suite at integration preparation: **69 tests passed**.
+outcomes. CPU suite after integration and aggregation checks: **70 tests passed**.

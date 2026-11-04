@@ -9,6 +9,75 @@ from scripts.modal_muse_smolvla_live import app, Policy, vision_image, volume
 image = vision_image.add_local_file("configs/libero_object_10_integration_points.json", "/root/ten_task_points.json")
 
 
+@app.cls(image=image, gpu="A100-80GB", cpu=4, memory=131072, timeout=900,
+         scaledown_window=10, volumes={"/data": volume}, max_containers=1)
+class A100SAMWorker:
+    """Run the same frozen SAM tracker on the GPU family used for training data."""
+
+    @modal.enter()
+    def load(self):
+        import sys
+        import tempfile
+        from pathlib import Path
+        import numpy as np
+        import torch
+        from odvla.data import file_hash
+        from sam3.model_builder import build_sam3_multiplex_video_predictor
+        sys.path.insert(0, "/root")
+        from extract_sam31 import _patch_multiplex_init_state
+        checkpoint = Path("/data/checkpoints/sam3.1/sam3.1_multiplex.pt")
+        if file_hash(checkpoint) != "0567debeec80ba4ac6369540c6c248025283cb3ff2b92827509e57e2b3541cb6":
+            raise ValueError("SAM checkpoint mismatch")
+        torch.manual_seed(2468)
+        np.random.seed(2468)
+        self.predictor = build_sam3_multiplex_video_predictor(checkpoint_path=str(checkpoint), use_fa3=False,
+            compile=False, warm_up=False, async_loading_frames=False)
+        _patch_multiplex_init_state(self.predictor)
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+        self.temporary = tempfile.TemporaryDirectory(prefix="odvla-a100-sam-")
+        self.directory = Path(self.temporary.name)
+        self.tracker = None
+        self.count = 0
+
+    @modal.method()
+    def start(self, jpeg, points, ids, capacity):
+        from odvla.sam_incremental import IncrementalPointTracker
+        if self.tracker is not None:
+            raise ValueError("SAM worker already initialized")
+        first = self.directory / "000000.jpg"
+        first.write_bytes(jpeg)
+        self.points, self.ids = points, ids
+        self.tracker = IncrementalPointTracker(self.predictor, first, points, ids, capacity=capacity)
+        return True
+
+    @modal.method()
+    def step(self, jpeg, step):
+        import numpy as np
+        from odvla.sam_prefix import replay_current
+        if self.tracker is None or step != self.count:
+            raise ValueError("SAM worker requires contiguous observed frames")
+        path = self.directory / f"{step:06}.jpg"
+        if step and not path.exists():
+            path.write_bytes(jpeg)
+        elif path.read_bytes() != jpeg:
+            raise ValueError("SAM worker first-frame mismatch")
+        masks, status = self.tracker.step(path)
+        if step in (0, 9, 29, 69, 99, 149, 199):
+            replay_masks, replay_ids = replay_current(self.predictor, self.directory, step + 1, self.points, self.ids)
+            if not np.array_equal(masks, replay_masks) or not np.array_equal(status, replay_ids):
+                raise ValueError("A100 incremental SAM differs from observed-prefix replay")
+        self.count += 1
+        return masks, status
+
+    @modal.method()
+    def close(self):
+        if self.tracker is not None:
+            self.tracker.close()
+            self.tracker = None
+        self.temporary.cleanup()
+
+
 @app.function(image=image, volumes={"/data": volume}, cpu=2, memory=16384, timeout=900)
 def freeze(name: str = "muse_ten_task_frozen_v1"):
     """Copy the completed shared checkpoint and record exact first-feature hashes."""
@@ -74,7 +143,7 @@ def freeze(name: str = "muse_ten_task_frozen_v1"):
 @app.function(image=image, gpu="H200", cpu=4, memory=131072, volumes={"/data": volume},
               timeout=900, max_containers=1, single_use_containers=True)
 def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", checkpoint_step: int = 20,
-            max_steps: int = 30, seed_base: int = 7):
+            max_steps: int = 30, seed_base: int = 7, sam_backend: str = "h200"):
     import hashlib
     import json
     import subprocess
@@ -96,7 +165,7 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
     sys.path.insert(0, "/root")
     from extract_sam31 import _patch_multiplex_init_state
 
-    if not 1 <= max_steps <= 200 or not 0 <= seed_base <= 100000:
+    if not 1 <= max_steps <= 200 or not 0 <= seed_base <= 100000 or sam_backend not in ("h200", "a100"):
         raise ValueError("Invalid rollout bound")
     for value in (task_id, name, fit_name):
         if not value or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for c in value):
@@ -147,8 +216,8 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
               "episode": episode, "scope": "training initialization; bounded integration smoke, not held-out evaluation",
               "sam_initialization": annotations["initialization_method"], "checkpoint_sha256": checkpoint_hash,
               "checkpoint_step": checkpoint_step, "seed_base": seed_base, "max_steps": max_steps,
-              "initial_state_sha256": state_hash, "success": False}
-    env = muse = incremental = None
+              "initial_state_sha256": state_hash, "sam_backend": sam_backend, "success": False}
+    env = muse = incremental = sam_worker = None
     trace, noises = [], []
     try:
         project = Path("/opt/LIBERO")
@@ -164,9 +233,12 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
         sam_checkpoint = root / "checkpoints/sam3.1/sam3.1_multiplex.pt"
         if file_hash(sam_checkpoint) != "0567debeec80ba4ac6369540c6c248025283cb3ff2b92827509e57e2b3541cb6":
             raise ValueError("SAM checkpoint mismatch")
-        tracker = build_sam3_multiplex_video_predictor(checkpoint_path=str(sam_checkpoint), use_fa3=False,
-            compile=False, warm_up=False, async_loading_frames=False)
-        _patch_multiplex_init_state(tracker)
+        if sam_backend == "h200":
+            tracker = build_sam3_multiplex_video_predictor(checkpoint_path=str(sam_checkpoint), use_fa3=False,
+                compile=False, warm_up=False, async_loading_frames=False)
+            _patch_multiplex_init_state(tracker)
+        else:
+            sam_worker = A100SAMWorker()
         muse = FrozenMuseTokens(root / "checkpoints/muse-glimmer-30b" / metadata["muse_revision"], 26, quantization="nf4")
         torch.backends.cuda.matmul.allow_tf32 = False
         torch.backends.cudnn.allow_tf32 = False
@@ -182,13 +254,18 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
             Image.fromarray(rgb).save(frame, quality=98)
             robots.append(np.concatenate([obs["robot0_joint_pos"], obs["robot0_eef_pos"],
                 quat2axisangle(obs["robot0_eef_quat"]), obs["robot0_gripper_qpos"]]).astype(np.float32))
-            if incremental is None:
-                incremental = IncrementalPointTracker(tracker, frame, annotation["points"], annotations["object_ids"], capacity=max_steps)
-            masks, ids = incremental.step(frame)
-            if step in (0, 9, 29, 69, 99, 149, 199):
-                replay_masks, replay_ids = replay_current(tracker, frames, step + 1, annotation["points"], annotations["object_ids"])
-                if not np.array_equal(masks, replay_masks) or not np.array_equal(ids, replay_ids):
-                    raise ValueError("Incremental SAM differs from observed-prefix replay")
+            if sam_worker is not None:
+                if step == 0:
+                    sam_worker.start.remote(frame.read_bytes(), annotation["points"], annotations["object_ids"], max_steps)
+                masks, ids = sam_worker.step.remote(frame.read_bytes(), step)
+            else:
+                if incremental is None:
+                    incremental = IncrementalPointTracker(tracker, frame, annotation["points"], annotations["object_ids"], capacity=max_steps)
+                masks, ids = incremental.step(frame)
+                if step in (0, 9, 29, 69, 99, 149, 199):
+                    replay_masks, replay_ids = replay_current(tracker, frames, step + 1, annotation["points"], annotations["object_ids"])
+                    if not np.array_equal(masks, replay_masks) or not np.array_equal(ids, replay_ids):
+                        raise ValueError("Incremental SAM differs from observed-prefix replay")
             measured, valid = mask_metrics(masks[None])
             valid &= ids[None, :, None] == 1
             features.append(measured[0])
@@ -207,6 +284,12 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
                           "sam": bool(np.allclose(measured[0], expected_sam, rtol=0, atol=1e-6)),
                           "sam_valid": bool(np.array_equal(valid[0], expected_valid))}
                 report["initial_parity"] = parity
+                report["sam_initial_diagnostics"] = {
+                    "expected": expected_sam.tolist(), "actual": measured[0].tolist(),
+                    "max_abs_difference": float(np.max(np.abs(measured[0] - expected_sam))),
+                    "max_abs_by_slot": np.max(np.abs(measured[0] - expected_sam), axis=1).tolist()}
+                np.savez(dest / "initial_sam_diagnostic.npz", masks=masks, ids=ids,
+                         expected=expected_sam, actual=measured[0], expected_valid=expected_valid, actual_valid=valid[0])
                 (dest / "initial_input_parity.json").write_text(json.dumps(parity, indent=2) + "\n")
                 volume.commit()
                 if not all(parity.values()):
@@ -252,6 +335,11 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
         (dest / "report.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
         if incremental is not None:
             incremental.close()
+        if sam_worker is not None:
+            try:
+                sam_worker.close.remote()
+            except Exception:
+                pass
         if env is not None:
             env.close()
         if muse is not None:
@@ -263,11 +351,11 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
 @app.local_entrypoint()
 def ten_task_main(stage: str = "freeze", task_id: str = "libero_object_milk", name: str = "ten_task_milk_smoke_v1",
          fit_name: str = "muse_ten_task_frozen_v1", checkpoint_step: int = 20,
-         max_steps: int = 30, seed_base: int = 7, background: bool = False):
+         max_steps: int = 30, seed_base: int = 7, sam_backend: str = "h200", background: bool = False):
     if stage == "freeze":
         print(freeze.remote(fit_name))
     elif stage == "rollout":
-        args = (task_id, name, fit_name, checkpoint_step, max_steps, seed_base)
+        args = (task_id, name, fit_name, checkpoint_step, max_steps, seed_base, sam_backend)
         if background:
             print(f"Spawned ten-task rollout: {rollout.spawn(*args).object_id}")
         else:

@@ -79,9 +79,13 @@ def main():
                 results[task] = summary_row(report)
                 print(f"Finished {task}: {results[task]}", flush=True)
                 del active[app_id]
-            summary = {"status": "complete" if len(results) == len(tasks) else "in_progress",
+            finished = len(results) == len(tasks)
+            failures = sum(row.get("status") != "completed" for row in results.values())
+            summary = {"status": ("in_progress" if not finished else
+                                  "complete_with_failures" if failures else "complete"),
                        "scope": "one 30-action smoke on a manually prompted training initialization per task; not held-out task-success evaluation",
                        "checkpoint_sha256": CHECKPOINT, "max_steps": 30, "results": results,
+                       "failed_attempts": failures,
                        "credits_used_at_last_check": used}
             target = Path(args.output)
             target.parent.mkdir(parents=True, exist_ok=True)
