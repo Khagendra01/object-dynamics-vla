@@ -22,9 +22,14 @@ the action flow objective fixed and tests broader demonstration coverage.
 - A fresh aligned single-episode model passed initial-input parity in a
   200-action closed-loop run, but did not secure or lift the carton. Its
   eight-frame in-sample action metric is not a full-frame evaluation.
-- A dataset-level experiment using 34 training episodes and eight reused
-  development episodes is underway. Report its actual checkpoint metrics,
-  rollout outcome, costs, and any failures after the jobs finish.
+- A dataset-level warm-started experiment used shuffled windows from 34
+  training episodes, with eight reused development episodes excluded from
+  optimization. At checkpoint 50, the actual Muse/SAM-conditioned policy
+  achieved the simulator's task-success condition after 166 actions on
+  `episode_0000`, a training initialization. Initial RGB, Muse features,
+  robot state, and SAM measurement parity checks passed. Two additional
+  sampling seeds are being evaluated; this single success does not establish
+  repeatability or generalization to new initializations.
 
 Native SmolVLA footage, if included, must be labeled as a separate reference;
 it is not evidence that the Muse/SAM-conditioned policy succeeded. The
@@ -44,6 +49,10 @@ physical position and does not establish an isolated gripper defect.
    [dataset training instructions](ALIGNED_DATASET_TRAINING.md), and saved
    video and trace artifacts when available.
 
-**Current status:** component integration and alignment are demonstrated; a
-reliable manipulation policy and a successful Muse/SAM-conditioned rollout
-have not yet been established.
+**Current status:** component integration, alignment and one successful
+Muse/SAM-conditioned rollout on a training initialization are demonstrated;
+reliable manipulation and generalization have not yet been established.
+
+The first successful rollout and report are available on the Modal data volume
+under `/eval/muse_dataset50_episode0000_v1/`. Its checkpoint SHA-256 is
+`fed8976c64c4b0842cb9158b675501c18d4ac8c8b2ae248e0aa1ff7947600bc2`.

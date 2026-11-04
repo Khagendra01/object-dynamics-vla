@@ -386,7 +386,7 @@ def run(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014
 def frozen_candidate(name: str = "muse_frozen7500_episode0000_v1", max_steps: int = 200,
                      fit_name: str = "quantized_muse_exposure_v1", checkpoint_step: int = 7500,
                      dataset: str = "milk_sam_development_v1", seed_base: int = 7,
-                     baseline_trace: str = ""):
+                     baseline_trace: str = "", match_baseline_noise: bool = True):
     """Run a frozen expert only after exact initial-conditioning checks."""
     import hashlib
     import json
@@ -422,7 +422,8 @@ def frozen_candidate(name: str = "muse_frozen7500_episode0000_v1", max_steps: in
         "fit_name":fit_name,"dataset":dataset,"checkpoint_step_requested":checkpoint_step,
         "policy_mode":"quantized_query_normalized","dynamics_objective":False,
         "sampling":f"CUDA Torch seed {seed_base}+step, first of 50 actions, 10 denoising steps",
-        "noise_baseline":baseline_trace or None,
+        "noise_baseline":baseline_trace if match_baseline_noise else None,
+        "initial_state_baseline":baseline_trace or None,
         "controller":"LIBERO OSC_POSE, np.clip(action,-1,1), replan each action", "max_steps":max_steps,
         "observations":"JPEG plus per-step NPZ containing raw robot, SAM masks/history, Muse tokens/features, sampled noise and action"}
     try:
@@ -543,7 +544,7 @@ def frozen_candidate(name: str = "muse_frozen7500_episode0000_v1", max_steps: in
             returned_hash=hashlib.sha256(noise.tobytes()).hexdigest()
             if noise_hash!=result["noise_sha256"] or returned_hash!=noise_hash:
                 raise ValueError(f"Sampling noise round-trip mismatch at step {step}")
-            if baseline is not None and noise_hash!=baseline["trace"][step]["noise_sha256"]:
+            if baseline is not None and match_baseline_noise and noise_hash!=baseline["trace"][step]["noise_sha256"]:
                 raise ValueError(f"Sampling noise differs from baseline at step {step}")
             action=result["action"]; clipped=np.clip(action,-1,1)
             # Persist the actual inference inputs and generated noise, not just hashes.
@@ -585,12 +586,12 @@ def frozen_candidate(name: str = "muse_frozen7500_episode0000_v1", max_steps: in
 
 
 @app.local_entrypoint()
-def main(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014", mode: str = "updated", noise_bank: str = "", stage: str = "run", fit_name: str = "quantized_muse_subset32_v1", name: str = "muse_frozen7500_episode0000_v1", checkpoint_step: int = 7500, dataset: str = "milk_sam_development_v1", seed_base: int = 7, baseline_trace: str = "", background: bool = False):
+def main(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014", mode: str = "updated", noise_bank: str = "", stage: str = "run", fit_name: str = "quantized_muse_subset32_v1", name: str = "muse_frozen7500_episode0000_v1", checkpoint_step: int = 7500, dataset: str = "milk_sam_development_v1", seed_base: int = 7, baseline_trace: str = "", match_baseline_noise: bool = True, background: bool = False):
     if stage == "noise": print(make_noise_bank.remote(noise_bank))
     elif stage == "smoke": print(paired_smoke.remote(noise_bank))
     elif stage == "ready": print(Policy(mode=mode, fit_name=fit_name, checkpoint_step=checkpoint_step).ready.remote())
     elif stage == "candidate":
-        args = (name, max_steps, fit_name, checkpoint_step, dataset, seed_base, baseline_trace)
+        args = (name, max_steps, fit_name, checkpoint_step, dataset, seed_base, baseline_trace, match_baseline_noise)
         if background: print(f"Spawned rollout call: {frozen_candidate.spawn(*args).object_id}")
         else: print(frozen_candidate.remote(*args))
     elif stage == "run": print(run.remote(max_steps, suffix, episode, mode, noise_bank, fit_name))
