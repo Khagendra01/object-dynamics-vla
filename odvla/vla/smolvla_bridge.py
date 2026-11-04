@@ -47,9 +47,10 @@ class MuseSamPrefix(nn.Module):
     """Resample Muse tokens and fuse causal state/SAM into native attention K/V."""
 
     def __init__(self, muse_width=6656, width=512, latents=64, layers=16, heads=5, head_dim=64,
-                 objects=2, metrics=5, history=4):
+                 objects=2, metrics=5, history=4, normalize_queries=False):
         super().__init__()
         self.layers, self.heads, self.head_dim = layers, heads, head_dim
+        self.normalize_queries = normalize_queries
         self.muse = nn.Sequential(nn.LayerNorm(muse_width), nn.Linear(muse_width, width))
         self.queries = nn.Parameter(torch.randn(latents, width) * .02)
         self.resample = nn.MultiheadAttention(width, 8, batch_first=True)
@@ -68,6 +69,8 @@ class MuseSamPrefix(nn.Module):
         vision = self.muse(torch.where(muse_valid[..., None], muse, 0).float())
         q = self.queries[None].expand(len(muse), -1, -1)
         q = q + self.resample(q, vision, vision, key_padding_mask=~muse_valid, need_weights=False)[0]
+        if self.normalize_queries:
+            q = torch.nn.functional.layer_norm(q, (q.shape[-1],))
         batch, hist, objects, _ = sam_values.shape
         valid = sam_valid & history_valid[:, :, None, None]
         parts = (torch.where(valid, sam_values, 0), torch.where(valid, sam_deltas, 0), valid.float(),

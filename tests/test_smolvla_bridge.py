@@ -6,6 +6,25 @@ from odvla.vla.smolvla_bridge import MuseSamPrefix, PrefixCache
 
 
 class BridgeTest(unittest.TestCase):
+    def test_query_normalization_bounds_fusion_inputs_and_preserves_state_dict(self):
+        torch.manual_seed(3)
+        kwargs = dict(muse_width=12, width=16, latents=3, layers=2, heads=2, head_dim=4)
+        legacy = MuseSamPrefix(**kwargs).eval()
+        model = MuseSamPrefix(**kwargs, normalize_queries=True).eval()
+        model.load_state_dict(legacy.state_dict(), strict=True)
+        seen = []
+        scale = model.resample.register_forward_hook(lambda module, args, output: (output[0] * 1000, output[1]))
+        capture = model.fuse.register_forward_pre_hook(lambda module, args: seen.append(args[0].detach()))
+        try:
+            model(torch.randn(1, 4, 12), torch.ones(1, 4, dtype=torch.bool), torch.randn(1, 960),
+                  torch.randn(1, 4, 2, 5), torch.randn(1, 4, 2, 5), torch.ones(1, 4, 2, 5, dtype=torch.bool),
+                  torch.zeros(1, 4, 2, 5), torch.ones(1, 4, dtype=torch.bool))
+        finally:
+            scale.remove(); capture.remove()
+        self.assertEqual(len(seen), 1)
+        torch.testing.assert_close(seen[0].mean(dim=-1), torch.zeros(1, 3), atol=1e-5, rtol=0)
+        torch.testing.assert_close(seen[0].square().mean(dim=-1), torch.ones(1, 3), atol=1e-4, rtol=0)
+
     def test_masked_features_do_not_affect_prefix(self):
         torch.manual_seed(1)
         model = MuseSamPrefix(muse_width=12, width=16, latents=3, layers=2, heads=2, head_dim=4).eval()

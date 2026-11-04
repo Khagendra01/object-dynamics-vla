@@ -7,7 +7,7 @@ image = (runtime_base.run_commands("git clone https://github.com/facebookresearc
                                    "git -C /opt/sam3 checkout f1647e8d0c1d280991f4d1b7d974c2704537fe66")
          .pip_install("/opt/sam3")
          .pip_install("numpy<2", "transformers==5.21.0", "torch==2.10.0", "torchvision==0.25.0",
-                      "opencv-python-headless<4.12", "Pillow", "einops", "pycocotools", "psutil")
+                      "opencv-python-headless<4.12", "Pillow", "einops", "pycocotools", "psutil", "bitsandbytes==0.48.2")
          .add_local_python_source("odvla")
          .add_local_file("scripts/__init__.py", "/root/scripts/__init__.py")
          .add_local_file("scripts/modal_muse_motor_rollout.py", "/root/scripts/modal_muse_motor_rollout.py")

@@ -26,14 +26,33 @@ def backend_snapshot(torch, model=None):
 
 
 class FrozenMuseTokens:
-    def __init__(self, checkpoint, layer_index=26):
+    def __init__(self, checkpoint, layer_index=26, *, quantization=None):
         import torch
         import transformers
         self.torch = torch
         self.path = Path(checkpoint)
         self.processor = transformers.AutoProcessor.from_pretrained(str(self.path), trust_remote_code=False)
         factory = getattr(transformers, "AutoModelForMultimodalLM", None) or transformers.AutoModelForImageTextToText
-        self.model = factory.from_pretrained(str(self.path), dtype=torch.bfloat16, device_map="auto", trust_remote_code=False)
+        if quantization not in (None, "nf4"):
+            raise ValueError("quantization must be None or 'nf4'")
+        options = {}
+        if quantization == "nf4":
+            # Keep vision modules unquantized where these architecture names match.
+            # The preflight records the actual converted modules; no GGUF is used.
+            options["quantization_config"] = transformers.BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_quant_storage=torch.bfloat16,
+                bnb_4bit_use_double_quant=True,
+                llm_int8_skip_modules=["vision_encoder", "vision_model", "vision_tower",
+                    "vision_adapter", "multi_modal_projector", "vision_projection",
+                    "vision_projector", "connector", "lm_head",
+                    r".*\.vision_tower", r".*\.vision_adapter", r".*\.vision_projection"])
+        self.model = factory.from_pretrained(str(self.path), dtype=torch.bfloat16,
+            device_map={"": 0} if quantization else "auto", trust_remote_code=False, **options)
+        self.quantization = quantization
+        if quantization and not getattr(self.model, "is_loaded_in_4bit", False):
+            raise ValueError("Requested NF4 model was not loaded in 4-bit")
         self.model.eval().requires_grad_(False)
         count = self.model.config.text_config.num_hidden_layers
         matches = [(n, m) for n, m in self.model.named_modules()
