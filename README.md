@@ -11,6 +11,7 @@ See [the short demonstration video](submission/object_dynamics_vla_demo.mp4),
 [the submission and all three results](docs/HACKATHON_SUBMISSION.md),
 [checkpoint and evaluation instructions](docs/REPRODUCE_MUSE_SAM.md), and
 [dataset training details](docs/ALIGNED_DATASET_TRAINING.md).
+See also the [bounded ten-task integration](docs/LIBERO_TEN_TASK_INTEGRATION.md).
 
 **Run the native-policy application:**
 

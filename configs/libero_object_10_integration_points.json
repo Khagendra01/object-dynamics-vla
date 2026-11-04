@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "one named training demonstration per task; integration only",
+  "initialization_method": "assistant-proposed points inspected on first-frame rendered RGB; not autonomous target selection or independently verified annotations",
+  "image_size": [512, 512],
+  "object_roles": ["target", "basket"],
+  "object_ids": [1, 2],
+  "tasks": {
+    "libero_object_alphabet_soup": {"episode": "demo_2", "points": [[128, 270], [410, 210]], "rgb_sha256": "c1dc825d4a45e61c66badb8b0d736622d6a033275e3708161fdcda76fc041968"},
+    "libero_object_bbq_sauce": {"episode": "demo_9", "points": [[194, 215], [410, 210]], "rgb_sha256": "d2c08617babc375328884c2819a6cad8f7ea142fb377c17e5890bce39f5bf1ee"},
+    "libero_object_butter": {"episode": "demo_30", "points": [[130, 250], [410, 210]], "rgb_sha256": "5a67f0f0b8fe8344e9efcee15dc8ea1c2af4d047c05dd202da32a6641a81de72"},
+    "libero_object_chocolate_pudding": {"episode": "demo_25", "points": [[145, 265], [410, 210]], "rgb_sha256": "6c750a154b78740e183116b7f27262b31cb398a09b132a64a6acdbebdda20fd7", "note": "target is heavily occluded at initialization; inspect predicted masks before training"},
+    "libero_object_cream_cheese": {"episode": "demo_9", "points": [[195, 198], [410, 210]], "rgb_sha256": "e97c83eddc9ec39eccc3c22fe4bf3c18dcafc3d53bd1f7401e66d5d9698c0056"},
+    "libero_object_ketchup": {"episode": "demo_11", "points": [[130, 280], [410, 210]], "rgb_sha256": "fb4f3fae67cf3f6ab360e49ffd422fdb0683b3c237b9288d6bb7801d71e6f124"},
+    "libero_object_milk": {"episode": "demo_0", "points": [[128, 277], [410, 210]], "rgb_sha256": "6cffc8a3845b5c7eaf772fdd6b895c822c40b20a66b5c3a07ef731d7e22a9109"},
+    "libero_object_orange_juice": {"episode": "demo_14", "points": [[194, 235], [410, 210]], "rgb_sha256": "5f201cf4c102a372cfc9c21ef1b879a7c29350e95d9e6fb85082a33050a01c11"},
+    "libero_object_salad_dressing": {"episode": "demo_49", "points": [[194, 235], [410, 210]], "rgb_sha256": "fb21c1e04ff9afdeb255f7ff361bb58b279937a430dbc1b61050560d10a50350"},
+    "libero_object_tomato_sauce": {"episode": "demo_22", "points": [[195, 215], [410, 210]], "rgb_sha256": "c4b119c29a4933655f85a1c6fc3b43b47e12f8282cbbb3ade257ec316b7a3ca4"}
+  }
+}

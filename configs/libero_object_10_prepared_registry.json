@@ -1,0 +1,1372 @@
+{
+  "schema_version": 1,
+  "libero_revision": "8f1084e3132a39270c3a13ebe37270a43ece2a01",
+  "tasks": [
+    {
+      "task_id": "libero_object_alphabet_soup",
+      "suite": "libero_object",
+      "instruction": "pick up the alphabet soup and place it in the basket",
+      "bddl": "libero_object/pick_up_the_alphabet_soup_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_alphabet_soup_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "42189d4415d4c51aaaf0708300653fccc39239cd3f2709079a713cd8d1678a8d",
+      "source_path": "libero/ten_task_sources/alphabet_soup.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "alphabet soup"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_2",
+          "demo_33",
+          "demo_0",
+          "demo_39",
+          "demo_45",
+          "demo_38",
+          "demo_21",
+          "demo_5",
+          "demo_37",
+          "demo_18",
+          "demo_15",
+          "demo_31",
+          "demo_41",
+          "demo_13",
+          "demo_44",
+          "demo_17",
+          "demo_27",
+          "demo_16",
+          "demo_40",
+          "demo_26",
+          "demo_47",
+          "demo_22",
+          "demo_32",
+          "demo_35",
+          "demo_9",
+          "demo_23",
+          "demo_6",
+          "demo_46",
+          "demo_8",
+          "demo_1",
+          "demo_49",
+          "demo_3",
+          "demo_14",
+          "demo_19",
+          "demo_7",
+          "demo_42",
+          "demo_43",
+          "demo_11",
+          "demo_28",
+          "demo_24"
+        ],
+        "development": [
+          "demo_12",
+          "demo_48",
+          "demo_34",
+          "demo_29",
+          "demo_30"
+        ],
+        "evaluation": [
+          "demo_36",
+          "demo_4",
+          "demo_10",
+          "demo_25",
+          "demo_20"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_2",
+        "actions_shape": [
+          136,
+          7
+        ],
+        "states_shape": [
+          136,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            136,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            136,
+            7
+          ],
+          "ee_states": [
+            136,
+            6
+          ],
+          "gripper_states": [
+            136,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_bbq_sauce",
+      "suite": "libero_object",
+      "instruction": "pick up the bbq sauce and place it in the basket",
+      "bddl": "libero_object/pick_up_the_bbq_sauce_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_bbq_sauce_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "90a722f2243a72878baff494d07ce7f4206cfc10307a4c82dcda5f2a5fabc060",
+      "source_path": "libero/ten_task_sources/bbq_sauce.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "bbq sauce"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_9",
+          "demo_11",
+          "demo_36",
+          "demo_38",
+          "demo_44",
+          "demo_29",
+          "demo_31",
+          "demo_19",
+          "demo_46",
+          "demo_2",
+          "demo_39",
+          "demo_37",
+          "demo_15",
+          "demo_1",
+          "demo_33",
+          "demo_32",
+          "demo_23",
+          "demo_24",
+          "demo_41",
+          "demo_40",
+          "demo_10",
+          "demo_27",
+          "demo_0",
+          "demo_6",
+          "demo_3",
+          "demo_16",
+          "demo_43",
+          "demo_20",
+          "demo_48",
+          "demo_49",
+          "demo_47",
+          "demo_35",
+          "demo_4",
+          "demo_28",
+          "demo_7",
+          "demo_34",
+          "demo_45",
+          "demo_17",
+          "demo_30",
+          "demo_25"
+        ],
+        "development": [
+          "demo_8",
+          "demo_22",
+          "demo_21",
+          "demo_12",
+          "demo_13"
+        ],
+        "evaluation": [
+          "demo_42",
+          "demo_26",
+          "demo_5",
+          "demo_18",
+          "demo_14"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_9",
+        "actions_shape": [
+          150,
+          7
+        ],
+        "states_shape": [
+          150,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            150,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            150,
+            7
+          ],
+          "ee_states": [
+            150,
+            6
+          ],
+          "gripper_states": [
+            150,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_butter",
+      "suite": "libero_object",
+      "instruction": "pick up the butter and place it in the basket",
+      "bddl": "libero_object/pick_up_the_butter_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_butter_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "07f48f1c0c06b5e10bc219e63701f0240d8205f85ccd0daab3ff9bd27bc35fb9",
+      "source_path": "libero/ten_task_sources/butter.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "butter"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_30",
+          "demo_6",
+          "demo_17",
+          "demo_34",
+          "demo_12",
+          "demo_46",
+          "demo_15",
+          "demo_18",
+          "demo_5",
+          "demo_25",
+          "demo_1",
+          "demo_20",
+          "demo_10",
+          "demo_47",
+          "demo_3",
+          "demo_33",
+          "demo_2",
+          "demo_42",
+          "demo_44",
+          "demo_4",
+          "demo_48",
+          "demo_7",
+          "demo_37",
+          "demo_43",
+          "demo_0",
+          "demo_11",
+          "demo_16",
+          "demo_9",
+          "demo_21",
+          "demo_13",
+          "demo_22",
+          "demo_49",
+          "demo_26",
+          "demo_19",
+          "demo_31",
+          "demo_45",
+          "demo_24",
+          "demo_14",
+          "demo_36",
+          "demo_41"
+        ],
+        "development": [
+          "demo_35",
+          "demo_39",
+          "demo_38",
+          "demo_27",
+          "demo_40"
+        ],
+        "evaluation": [
+          "demo_8",
+          "demo_32",
+          "demo_29",
+          "demo_28",
+          "demo_23"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_30",
+        "actions_shape": [
+          162,
+          7
+        ],
+        "states_shape": [
+          162,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            162,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            162,
+            7
+          ],
+          "ee_states": [
+            162,
+            6
+          ],
+          "gripper_states": [
+            162,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_chocolate_pudding",
+      "suite": "libero_object",
+      "instruction": "pick up the chocolate pudding and place it in the basket",
+      "bddl": "libero_object/pick_up_the_chocolate_pudding_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_chocolate_pudding_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "b5b57f36cd78e598e258e0e2a1a9d4e8d37d387901487eecd22d503e0e222302",
+      "source_path": "libero/ten_task_sources/chocolate_pudding.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "chocolate pudding"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_25",
+          "demo_14",
+          "demo_22",
+          "demo_40",
+          "demo_23",
+          "demo_5",
+          "demo_31",
+          "demo_15",
+          "demo_26",
+          "demo_35",
+          "demo_17",
+          "demo_38",
+          "demo_49",
+          "demo_20",
+          "demo_16",
+          "demo_28",
+          "demo_36",
+          "demo_42",
+          "demo_8",
+          "demo_47",
+          "demo_45",
+          "demo_29",
+          "demo_44",
+          "demo_9",
+          "demo_13",
+          "demo_6",
+          "demo_24",
+          "demo_37",
+          "demo_27",
+          "demo_4",
+          "demo_21",
+          "demo_39",
+          "demo_18",
+          "demo_30",
+          "demo_34",
+          "demo_41",
+          "demo_19",
+          "demo_0",
+          "demo_33",
+          "demo_48"
+        ],
+        "development": [
+          "demo_32",
+          "demo_11",
+          "demo_43",
+          "demo_2",
+          "demo_7"
+        ],
+        "evaluation": [
+          "demo_3",
+          "demo_1",
+          "demo_10",
+          "demo_12",
+          "demo_46"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_25",
+        "actions_shape": [
+          150,
+          7
+        ],
+        "states_shape": [
+          150,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            150,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            150,
+            7
+          ],
+          "ee_states": [
+            150,
+            6
+          ],
+          "gripper_states": [
+            150,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_cream_cheese",
+      "suite": "libero_object",
+      "instruction": "pick up the cream cheese and place it in the basket",
+      "bddl": "libero_object/pick_up_the_cream_cheese_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_cream_cheese_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "7ae50ed3a64bab8418fd6c8e346ba1c39da0fdaa62916a87b9d20f3745b45406",
+      "source_path": "libero/ten_task_sources/cream_cheese.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "cream cheese"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_9",
+          "demo_1",
+          "demo_31",
+          "demo_18",
+          "demo_0",
+          "demo_42",
+          "demo_20",
+          "demo_39",
+          "demo_8",
+          "demo_26",
+          "demo_24",
+          "demo_32",
+          "demo_27",
+          "demo_40",
+          "demo_28",
+          "demo_46",
+          "demo_33",
+          "demo_49",
+          "demo_19",
+          "demo_47",
+          "demo_17",
+          "demo_38",
+          "demo_14",
+          "demo_21",
+          "demo_35",
+          "demo_44",
+          "demo_22",
+          "demo_11",
+          "demo_36",
+          "demo_23",
+          "demo_2",
+          "demo_29",
+          "demo_15",
+          "demo_7",
+          "demo_5",
+          "demo_10",
+          "demo_37",
+          "demo_12",
+          "demo_45",
+          "demo_34"
+        ],
+        "development": [
+          "demo_6",
+          "demo_4",
+          "demo_3",
+          "demo_30",
+          "demo_41"
+        ],
+        "evaluation": [
+          "demo_16",
+          "demo_13",
+          "demo_43",
+          "demo_48",
+          "demo_25"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_9",
+        "actions_shape": [
+          150,
+          7
+        ],
+        "states_shape": [
+          150,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            150,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            150,
+            7
+          ],
+          "ee_states": [
+            150,
+            6
+          ],
+          "gripper_states": [
+            150,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_ketchup",
+      "suite": "libero_object",
+      "instruction": "pick up the ketchup and place it in the basket",
+      "bddl": "libero_object/pick_up_the_ketchup_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_ketchup_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "e0814effbe3a46777952950be0565577c348dad211327bc5d2a16f4eacc55ba1",
+      "source_path": "libero/ten_task_sources/ketchup.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "ketchup"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_11",
+          "demo_8",
+          "demo_3",
+          "demo_17",
+          "demo_41",
+          "demo_20",
+          "demo_30",
+          "demo_44",
+          "demo_36",
+          "demo_31",
+          "demo_1",
+          "demo_6",
+          "demo_48",
+          "demo_26",
+          "demo_27",
+          "demo_22",
+          "demo_23",
+          "demo_49",
+          "demo_40",
+          "demo_24",
+          "demo_38",
+          "demo_34",
+          "demo_29",
+          "demo_37",
+          "demo_9",
+          "demo_16",
+          "demo_33",
+          "demo_13",
+          "demo_5",
+          "demo_10",
+          "demo_32",
+          "demo_47",
+          "demo_4",
+          "demo_7",
+          "demo_43",
+          "demo_0",
+          "demo_42",
+          "demo_45",
+          "demo_35",
+          "demo_18"
+        ],
+        "development": [
+          "demo_21",
+          "demo_28",
+          "demo_25",
+          "demo_12",
+          "demo_19"
+        ],
+        "evaluation": [
+          "demo_39",
+          "demo_15",
+          "demo_14",
+          "demo_46",
+          "demo_2"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_11",
+        "actions_shape": [
+          148,
+          7
+        ],
+        "states_shape": [
+          148,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            148,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            148,
+            7
+          ],
+          "ee_states": [
+            148,
+            6
+          ],
+          "gripper_states": [
+            148,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_milk",
+      "suite": "libero_object",
+      "instruction": "pick up the milk and place it in the basket",
+      "bddl": "libero_object/pick_up_the_milk_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_milk_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "e56d954928e613f9db58085b7677ccf9c4824f1ab982265f71405d5bb14cfb4a",
+      "source_path": "libero/source/milk_demo.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "milk"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "previously used milk initializations; not an untouched test set",
+      "episodes": {
+        "train": [
+          "demo_0",
+          "demo_1",
+          "demo_11",
+          "demo_12",
+          "demo_14",
+          "demo_16",
+          "demo_17",
+          "demo_18",
+          "demo_19",
+          "demo_2",
+          "demo_22",
+          "demo_23",
+          "demo_24",
+          "demo_25",
+          "demo_28",
+          "demo_3",
+          "demo_30",
+          "demo_33",
+          "demo_35",
+          "demo_36",
+          "demo_37",
+          "demo_39",
+          "demo_4",
+          "demo_40",
+          "demo_41",
+          "demo_42",
+          "demo_44",
+          "demo_46",
+          "demo_48",
+          "demo_49",
+          "demo_5",
+          "demo_6",
+          "demo_7",
+          "demo_9"
+        ],
+        "development": [
+          "demo_21",
+          "demo_27",
+          "demo_29",
+          "demo_31",
+          "demo_32",
+          "demo_45",
+          "demo_47",
+          "demo_8"
+        ],
+        "evaluation": [
+          "demo_10",
+          "demo_13",
+          "demo_15",
+          "demo_20",
+          "demo_26",
+          "demo_34",
+          "demo_38",
+          "demo_43"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_0",
+        "actions_shape": [
+          150,
+          7
+        ],
+        "states_shape": [
+          150,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            150,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            150,
+            7
+          ],
+          "ee_states": [
+            150,
+            6
+          ],
+          "gripper_states": [
+            150,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_orange_juice",
+      "suite": "libero_object",
+      "instruction": "pick up the orange juice and place it in the basket",
+      "bddl": "libero_object/pick_up_the_orange_juice_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_orange_juice_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "53e40490c62e94c678233eefbfd874a61c93d92c8088f59d426ae6c3fd90d288",
+      "source_path": "libero/ten_task_sources/orange_juice.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "orange juice"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_14",
+          "demo_24",
+          "demo_22",
+          "demo_5",
+          "demo_19",
+          "demo_10",
+          "demo_18",
+          "demo_29",
+          "demo_0",
+          "demo_42",
+          "demo_27",
+          "demo_32",
+          "demo_44",
+          "demo_3",
+          "demo_25",
+          "demo_23",
+          "demo_38",
+          "demo_9",
+          "demo_15",
+          "demo_6",
+          "demo_48",
+          "demo_28",
+          "demo_43",
+          "demo_34",
+          "demo_21",
+          "demo_12",
+          "demo_2",
+          "demo_26",
+          "demo_37",
+          "demo_35",
+          "demo_33",
+          "demo_13",
+          "demo_11",
+          "demo_4",
+          "demo_40",
+          "demo_8",
+          "demo_17",
+          "demo_36",
+          "demo_16",
+          "demo_45"
+        ],
+        "development": [
+          "demo_30",
+          "demo_46",
+          "demo_1",
+          "demo_47",
+          "demo_31"
+        ],
+        "evaluation": [
+          "demo_20",
+          "demo_7",
+          "demo_49",
+          "demo_41",
+          "demo_39"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_14",
+        "actions_shape": [
+          114,
+          7
+        ],
+        "states_shape": [
+          114,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            114,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            114,
+            7
+          ],
+          "ee_states": [
+            114,
+            6
+          ],
+          "gripper_states": [
+            114,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_salad_dressing",
+      "suite": "libero_object",
+      "instruction": "pick up the salad dressing and place it in the basket",
+      "bddl": "libero_object/pick_up_the_salad_dressing_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_salad_dressing_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "45960606a85b9c68980eb8130e0fe16bf3621539cf5d4147f35aa8139573c5ac",
+      "source_path": "libero/ten_task_sources/salad_dressing.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "salad dressing"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_49",
+          "demo_6",
+          "demo_37",
+          "demo_13",
+          "demo_43",
+          "demo_41",
+          "demo_30",
+          "demo_24",
+          "demo_22",
+          "demo_15",
+          "demo_20",
+          "demo_44",
+          "demo_28",
+          "demo_45",
+          "demo_2",
+          "demo_7",
+          "demo_29",
+          "demo_36",
+          "demo_21",
+          "demo_23",
+          "demo_3",
+          "demo_8",
+          "demo_18",
+          "demo_9",
+          "demo_14",
+          "demo_19",
+          "demo_38",
+          "demo_5",
+          "demo_17",
+          "demo_0",
+          "demo_46",
+          "demo_40",
+          "demo_10",
+          "demo_39",
+          "demo_16",
+          "demo_47",
+          "demo_48",
+          "demo_27",
+          "demo_12",
+          "demo_11"
+        ],
+        "development": [
+          "demo_35",
+          "demo_4",
+          "demo_42",
+          "demo_33",
+          "demo_1"
+        ],
+        "evaluation": [
+          "demo_26",
+          "demo_34",
+          "demo_25",
+          "demo_31",
+          "demo_32"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_49",
+        "actions_shape": [
+          134,
+          7
+        ],
+        "states_shape": [
+          134,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            134,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            134,
+            7
+          ],
+          "ee_states": [
+            134,
+            6
+          ],
+          "gripper_states": [
+            134,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    },
+    {
+      "task_id": "libero_object_tomato_sauce",
+      "suite": "libero_object",
+      "instruction": "pick up the tomato sauce and place it in the basket",
+      "bddl": "libero_object/pick_up_the_tomato_sauce_and_place_it_in_the_basket.bddl",
+      "source_url": "https://huggingface.co/datasets/yifengzhu-hf/LIBERO-datasets/resolve/main/libero_object/pick_up_the_tomato_sauce_and_place_it_in_the_basket_demo.hdf5",
+      "source_sha256": "43c52bdaa78b4c6aff3afb54d932d6a0e065f5c30c8e30a6c17f78749d487ea9",
+      "source_path": "libero/ten_task_sources/tomato_sauce.hdf5",
+      "object_slots": [
+        {
+          "role": "target",
+          "identity": "tomato sauce"
+        },
+        {
+          "role": "destination",
+          "identity": "basket"
+        }
+      ],
+      "sam_initialization": {
+        "method": "unassigned; requires first-frame RGB inspection",
+        "points": null
+      },
+      "controller": {
+        "embodiment": "LIBERO Panda single arm",
+        "name": "robosuite 1.4 OSC_POSE",
+        "action_channels": [
+          "translation_x",
+          "translation_y",
+          "translation_z",
+          "rotation_x",
+          "rotation_y",
+          "rotation_z",
+          "gripper"
+        ],
+        "units": "normalized [-1,1], OSC translation scale 0.05, rotation scale 0.5",
+        "frame": "robosuite 1.4 default OSC_POSE controller configuration",
+        "gripper": "PandaGripper: negative open, positive close",
+        "control_hz": 20,
+        "robot_observation": "joint position 7, end-effector position and axis angle 6, gripper qpos 2",
+        "timing": "RGB and robot regenerated from simulator states[t]; action[t] follows state[t]",
+        "camera": "agentview; native 512x512 JPEG quality 98, unflipped MuJoCo render"
+      },
+      "split_policy": "episode-level train/dev/eval; milk retains previously used development split",
+      "evaluation_history": "reserved demonstration IDs; initialization uniqueness not yet audited",
+      "episodes": {
+        "train": [
+          "demo_22",
+          "demo_33",
+          "demo_20",
+          "demo_24",
+          "demo_9",
+          "demo_34",
+          "demo_40",
+          "demo_17",
+          "demo_49",
+          "demo_10",
+          "demo_11",
+          "demo_46",
+          "demo_26",
+          "demo_1",
+          "demo_31",
+          "demo_14",
+          "demo_28",
+          "demo_42",
+          "demo_23",
+          "demo_21",
+          "demo_29",
+          "demo_27",
+          "demo_12",
+          "demo_37",
+          "demo_15",
+          "demo_45",
+          "demo_39",
+          "demo_6",
+          "demo_47",
+          "demo_43",
+          "demo_48",
+          "demo_8",
+          "demo_35",
+          "demo_0",
+          "demo_32",
+          "demo_44",
+          "demo_3",
+          "demo_16",
+          "demo_4",
+          "demo_19"
+        ],
+        "development": [
+          "demo_25",
+          "demo_5",
+          "demo_41",
+          "demo_36",
+          "demo_30"
+        ],
+        "evaluation": [
+          "demo_13",
+          "demo_18",
+          "demo_7",
+          "demo_2",
+          "demo_38"
+        ]
+      },
+      "source_schema": {
+        "demonstrations": 50,
+        "example_train_demo": "demo_22",
+        "actions_shape": [
+          180,
+          7
+        ],
+        "states_shape": [
+          180,
+          110
+        ],
+        "observations": {
+          "agentview_rgb": [
+            180,
+            128,
+            128,
+            3
+          ],
+          "joint_states": [
+            180,
+            7
+          ],
+          "ee_states": [
+            180,
+            6
+          ],
+          "gripper_states": [
+            180,
+            2
+          ]
+        }
+      },
+      "source_verified": true
+    }
+  ],
+  "status": "sources_prepared",
+  "source": "official LIBERO Object demonstration HDF5 files",
+  "test_accessed": false,
+  "images_rendered": false,
+  "sam_executed": false,
+  "model_trained": false
+}
