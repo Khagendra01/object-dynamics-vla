@@ -1,5 +1,10 @@
 # Object Dynamics VLA — dataset-first experiment kit
 
+**Hackathon submission:** see [the project and evidence draft](docs/HACKATHON_SUBMISSION.md)
+and the [aligned dataset training guide](docs/ALIGNED_DATASET_TRAINING.md).
+The Muse/SAM-conditioned manipulation policy remains experimental; the most
+recent completed aligned rollout did not secure or lift the carton.
+
 **Run the native-policy application:**
 
 ```bash
