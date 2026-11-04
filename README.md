@@ -12,6 +12,8 @@ See [the short demonstration video](submission/object_dynamics_vla_demo.mp4),
 [checkpoint and evaluation instructions](docs/REPRODUCE_MUSE_SAM.md), and
 [dataset training details](docs/ALIGNED_DATASET_TRAINING.md).
 See also the [bounded ten-task integration](docs/LIBERO_TEN_TASK_INTEGRATION.md).
+The follow-up [multi-demonstration campaign](docs/MULTIDEMO_CAMPAIGN.md)
+documents expanded data preparation and the two-tier feature cache.
 
 **Run the native-policy application:**
 

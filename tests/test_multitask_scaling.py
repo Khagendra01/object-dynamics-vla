@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from odvla.vla.bounded_features import BoundedFeatureCache, frozen_feature_key
+from odvla.vla.bounded_features import BoundedFeatureCache, TieredFeatureCache, frozen_feature_key
 from odvla.vla.libero_object_tasks import registry
 from odvla.vla.multitask_sampling import TaskBalancedSampler
 from scripts.collect_ten_task_smokes import collect
@@ -74,6 +74,25 @@ class MultitaskScalingTests(unittest.TestCase):
             cache = BoundedFeatureCache(temp, 100)
             self.assertFalse(cache.put(key(), {"feature": np.arange(500, dtype=np.uint8)}))
             self.assertEqual(cache.size_bytes, 0)
+
+    def test_ram_lru_falls_back_to_disk_and_returns_isolated_arrays(self):
+        with tempfile.TemporaryDirectory() as temp:
+            cache = TieredFeatureCache(temp, disk_bytes=10000, ram_bytes=500)
+            first, second = key(frame=1), key(frame=2)
+            data = {"feature": np.arange(200, dtype=np.uint8)}
+            self.assertTrue(cache.put(first, data))
+            hit = cache.get(first)
+            hit["feature"][0] = 99
+            self.assertEqual(cache.get(first)["feature"][0], 0)
+            self.assertTrue(cache.put(second, {"feature": np.arange(400, dtype=np.uint8)}))
+            self.assertLessEqual(cache.memory_bytes, 500)
+            self.assertTrue(np.array_equal(cache.get(first)["feature"], data["feature"]))
+            self.assertEqual(cache.stats["disk_hits"], 1)
+            self.assertEqual(cache.stats["ram_hits"], 2)
+            self.assertLessEqual(cache.size_bytes, 10000)
+            restored = TieredFeatureCache(temp, disk_bytes=10000, ram_bytes=0)
+            self.assertTrue(np.array_equal(restored.get(first)["feature"], data["feature"]))
+            self.assertEqual(restored.memory_bytes, 0)
 
     def test_smoke_aggregation_keeps_failed_attempt_and_requires_parity(self):
         parity = {k: True for k in ("rgb", "muse", "robot", "sam", "sam_valid")}

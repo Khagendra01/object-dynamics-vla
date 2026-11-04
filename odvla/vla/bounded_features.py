@@ -5,6 +5,7 @@ import json
 import os
 import re
 import time
+from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
@@ -100,3 +101,58 @@ class BoundedFeatureCache:
         finally:
             temporary.unlink(missing_ok=True)
         return True
+
+
+class TieredFeatureCache:
+    """Single-worker byte-bounded RAM LRU over the persistent disk LRU.
+
+    Returned arrays are copies: callers cannot mutate cached features. A RAM
+    entry can outlive eviction of its disk entry, but both tiers remain bounded.
+    """
+
+    def __init__(self, root, disk_bytes, ram_bytes):
+        self.disk = BoundedFeatureCache(root, disk_bytes)
+        self.ram_budget = int(ram_bytes)
+        if self.ram_budget < 0:
+            raise ValueError("RAM budget must not be negative")
+        self._ram = OrderedDict()
+        self.memory_bytes = 0
+        self.stats = {"ram_hits": 0, "disk_hits": 0, "misses": 0, "writes": 0}
+
+    @property
+    def size_bytes(self):
+        return self.disk.size_bytes
+
+    def _remember(self, key, arrays):
+        if key in self._ram:
+            self.memory_bytes -= self._ram.pop(key)[1]
+        size = sum(np.asarray(array).nbytes for array in arrays.values())
+        if size > self.ram_budget:
+            return
+        while self._ram and self.memory_bytes + size > self.ram_budget:
+            _, (_, removed) = self._ram.popitem(last=False)
+            self.memory_bytes -= removed
+        value = {name: np.asarray(array).copy() for name, array in arrays.items()}
+        self._ram[key] = (value, size)
+        self.memory_bytes += size
+
+    def get(self, key):
+        if key in self._ram:
+            arrays, size = self._ram.pop(key)
+            self._ram[key] = (arrays, size)
+            self.stats["ram_hits"] += 1
+            return {name: array.copy() for name, array in arrays.items()}
+        arrays = self.disk.get(key)
+        if arrays is None:
+            self.stats["misses"] += 1
+            return None
+        self.stats["disk_hits"] += 1
+        self._remember(key, arrays)
+        return arrays
+
+    def put(self, key, arrays):
+        stored = self.disk.put(key, arrays)
+        if stored:
+            self.stats["writes"] += 1
+            self._remember(key, arrays)
+        return stored

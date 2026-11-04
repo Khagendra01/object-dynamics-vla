@@ -79,7 +79,7 @@ class A100SAMWorker:
 
 
 @app.function(image=image, volumes={"/data": volume}, cpu=2, memory=16384, timeout=900)
-def freeze(name: str = "muse_ten_task_frozen_v1"):
+def freeze(name: str = "muse_ten_task_frozen_v1", source_fit: str = "muse_ten_task_integration_v1"):
     """Copy the completed shared checkpoint and record exact first-feature hashes."""
     import hashlib
     import json
@@ -90,11 +90,12 @@ def freeze(name: str = "muse_ten_task_frozen_v1"):
     from odvla.data import file_hash, read_json
     from odvla.vla.bounded_features import BoundedFeatureCache, frozen_feature_key
 
-    if not name or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for c in name):
-        raise ValueError("Invalid frozen output name")
-    fit = Path("/data/eval/muse_ten_task_integration_v1")
+    for value in (name, source_fit):
+        if not value or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for c in value):
+            raise ValueError("Invalid source or frozen output name")
+    fit = Path("/data/eval") / source_fit
     report = read_json(fit / "report.json")
-    if report.get("status") not in ("completed", "budget_stopped") or not report.get("completed_updates"):
+    if report.get("status") not in ("completed", "budget_stopped", "checkpointed") or not report.get("completed_updates"):
         raise ValueError("Shared training has no finished checkpoint")
     step = int(report["completed_updates"])
     digest = file_hash(fit / "last.pt")
@@ -104,7 +105,10 @@ def freeze(name: str = "muse_ten_task_frozen_v1"):
     records = read_json(root / "renders.json")["entries"]
     registry = {t["task_id"]: t for t in read_json("/data/libero/ten_task_sources/registry.json")["tasks"]}
     annotations = read_json("/root/ten_task_points.json")["tasks"]
-    cache = BoundedFeatureCache("/data/libero/ten_task_bounded_nf4_v1", int(report["contract"]["cache_gib"] * 1024 ** 3))
+    cache_gib = report["contract"].get("disk_gib", report["contract"].get("cache_gib"))
+    if cache_gib is None:
+        raise ValueError("Training report has no cache budget")
+    cache = BoundedFeatureCache("/data/libero/ten_task_bounded_nf4_v1", int(cache_gib * 1024 ** 3))
     expected = {}
     for item in records:
         task, episode = item["task_id"], item["episode"]
@@ -121,8 +125,11 @@ def freeze(name: str = "muse_ten_task_frozen_v1"):
         feature_hash = hashlib.sha256(tokens["features_bfloat16_bits"].tobytes()).hexdigest()
         with h5py.File(Path("/data") / registry[task]["source_path"], "r") as source:
             state_hash = hashlib.sha256(np.asarray(source["data"][episode]["states"][0]).tobytes()).hexdigest()
+        task_provenance = report["contract"]["tasks"][task]
+        masked = isinstance(task_provenance, list) and any(p.get("sam_target_masked_unverified") for p in task_provenance)
         expected[task] = {"episode": episode, "rgb_sha256": image_hash,
-                          "feature_sha256": feature_hash, "initial_state_sha256": state_hash}
+                          "feature_sha256": feature_hash, "initial_state_sha256": state_hash,
+                          "sam_target_masked_unverified": masked}
     out = Path("/data/eval") / name
     out.mkdir(parents=True, exist_ok=False)
     target = out / f"checkpoint_{step}.pt"
@@ -133,6 +140,7 @@ def freeze(name: str = "muse_ten_task_frozen_v1"):
     metadata = {"status": "frozen", "completed_updates": step, "normalize_queries": True,
         "dynamics_objective": False, "muse_revision": report["contract"]["muse_revision"],
         "committed_checkpoints": [{"step": step, "sha256": digest}],
+        "source_fit": source_fit, "source_status": report["status"],
         "source_report_sha256": file_hash(fit / "report.json"), "expected_inputs": expected,
         "scope": "one manually prompted training initialization per task; integration only"}
     (out / "report.json").write_text(json.dumps(metadata, indent=2) + "\n")
@@ -198,6 +206,8 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
         expected_robot = z["robot"][0].copy()
     with np.load(folder / "sam_measurements.npz", allow_pickle=False) as z:
         expected_sam, expected_valid = z["features"][0].copy(), z["valid"][0].copy()
+    if expected.get("sam_target_masked_unverified"):
+        expected_valid[0, :] = False
     with np.load(fit / "stats.npz", allow_pickle=False) as z:
         stats = {k: z[k].copy() for k in z.files}
     with h5py.File(root / task["source_path"], "r") as source:
@@ -268,6 +278,8 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
                         raise ValueError("Incremental SAM differs from observed-prefix replay")
             measured, valid = mask_metrics(masks[None])
             valid &= ids[None, :, None] == 1
+            if expected.get("sam_target_masked_unverified"):
+                valid[:, 0, :] = False
             features.append(measured[0])
             valids.append(valid[0])
             observed = {"robot": np.stack(robots), "features": np.stack(features), "valid": np.stack(valids),
@@ -281,7 +293,7 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
                 feature_hash = hashlib.sha256(token["features_bfloat16_bits"].tobytes()).hexdigest()
                 parity = {"rgb": rgb_hash == expected["rgb_sha256"], "muse": feature_hash == expected["feature_sha256"],
                           "robot": bool(np.allclose(robots[0], expected_robot, rtol=0, atol=1e-6)),
-                          "sam": bool(np.allclose(measured[0], expected_sam, rtol=0, atol=1e-6)),
+                          "sam": bool(np.allclose(measured[0][expected_valid], expected_sam[expected_valid], rtol=0, atol=1e-6)),
                           "sam_valid": bool(np.array_equal(valid[0], expected_valid))}
                 report["initial_parity"] = parity
                 report["sam_initial_diagnostics"] = {
@@ -351,9 +363,11 @@ def rollout(task_id: str, name: str, fit_name: str = "muse_ten_task_frozen_v1", 
 @app.local_entrypoint()
 def ten_task_main(stage: str = "freeze", task_id: str = "libero_object_milk", name: str = "ten_task_milk_smoke_v1",
          fit_name: str = "muse_ten_task_frozen_v1", checkpoint_step: int = 20,
-         max_steps: int = 30, seed_base: int = 7, sam_backend: str = "h200", background: bool = False):
+         max_steps: int = 30, seed_base: int = 7, sam_backend: str = "h200", background: bool = False,
+         source_fit: str = "muse_ten_task_integration_v1"):
     if stage == "freeze":
-        print(freeze.remote(fit_name))
+        if background: print(f"Spawned checkpoint freeze: {freeze.spawn(fit_name, source_fit).object_id}")
+        else: print(freeze.remote(fit_name, source_fit))
     elif stage == "rollout":
         args = (task_id, name, fit_name, checkpoint_step, max_steps, seed_base, sam_backend)
         if background:

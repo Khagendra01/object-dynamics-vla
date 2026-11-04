@@ -58,7 +58,7 @@ def main():
             used = credits_used()
             if used >= args.max_credit_used:
                 for app_id in active:
-                    subprocess.run([sys.executable, "-m", "modal", "app", "stop", app_id], check=False)
+                    subprocess.run([sys.executable, "-m", "modal", "app", "stop", "--yes", app_id], check=False)
                 raise RuntimeError(f"Reported credits used {used:.2f} reached conservative {args.max_credit_used:.2f} limit")
             while pending and len(active) < args.max_parallel:
                 task = pending.pop(0)
