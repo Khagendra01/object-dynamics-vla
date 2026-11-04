@@ -28,8 +28,12 @@ e32acff474d12f798459df2ca80ac65f8fa2c7251f26d4f32d66de5e73926b54  outputs/muse_d
 
 These are workspace-private Modal downloads, not public anonymous links. The
 checkpoint and normalization statistics are not committed to this repository.
-To reproduce outside this workspace, the required assets below must first be
-obtained and placed in a volume with the same paths.
+A second workspace, `kgencsueb` (local profile `campaign2`), holds a verified
+copy of the same volume contents: the audit stage of
+`scripts.modal_muse_multidemo_train` reports the identical ten-task,
+61-episode preparation there. To reproduce outside either workspace, the
+required assets below must first be obtained and placed in a volume with the
+same paths.
 
 ## Pinned inputs and environment
 
