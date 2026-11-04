@@ -585,10 +585,13 @@ def frozen_candidate(name: str = "muse_frozen7500_episode0000_v1", max_steps: in
 
 
 @app.local_entrypoint()
-def main(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014", mode: str = "updated", noise_bank: str = "", stage: str = "run", fit_name: str = "quantized_muse_subset32_v1", name: str = "muse_frozen7500_episode0000_v1", checkpoint_step: int = 7500, dataset: str = "milk_sam_development_v1", seed_base: int = 7, baseline_trace: str = ""):
+def main(max_steps: int = 1, suffix: str = "smoke1", episode: str = "episode_0014", mode: str = "updated", noise_bank: str = "", stage: str = "run", fit_name: str = "quantized_muse_subset32_v1", name: str = "muse_frozen7500_episode0000_v1", checkpoint_step: int = 7500, dataset: str = "milk_sam_development_v1", seed_base: int = 7, baseline_trace: str = "", background: bool = False):
     if stage == "noise": print(make_noise_bank.remote(noise_bank))
     elif stage == "smoke": print(paired_smoke.remote(noise_bank))
     elif stage == "ready": print(Policy(mode=mode, fit_name=fit_name, checkpoint_step=checkpoint_step).ready.remote())
-    elif stage == "candidate": print(frozen_candidate.remote(name, max_steps, fit_name, checkpoint_step, dataset, seed_base, baseline_trace))
+    elif stage == "candidate":
+        args = (name, max_steps, fit_name, checkpoint_step, dataset, seed_base, baseline_trace)
+        if background: print(f"Spawned rollout call: {frozen_candidate.spawn(*args).object_id}")
+        else: print(frozen_candidate.remote(*args))
     elif stage == "run": print(run.remote(max_steps, suffix, episode, mode, noise_bank, fit_name))
     else: raise ValueError("Invalid stage")
