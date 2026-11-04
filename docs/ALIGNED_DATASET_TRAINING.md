@@ -71,12 +71,15 @@ Checkpointing happens before evaluation. Evaluation is deferred when fewer than
 The metadata/weights follow the existing quantized rollout loader's contract:
 the new-phase checkpoint number can be supplied to the existing candidate runner
 alongside `--fit-name muse_aligned_dataset_v1` and the aligned dataset name.
-An actual cache/train/rollout integration has not yet been executed on GPU.
-No rollout or further paid job is automatically launched by this script.
+The cache/train/rollout path has since run on GPU. Checkpoint 50 succeeded in
+one of three sampling-seed rollouts on the same training initialization; see
+[the submission results](HACKATHON_SUBMISSION.md). No rollout or further paid
+job is automatically launched by this training script.
 
 The displayed training-loop cost uses the requested A100/CPU/RAM rates and
 excludes setup, startup/builds, writeback, extraction and storage; it is not an
 invoice or a total spending cap. Choose runtimes against actual available credit.
 
 Local verification: Python compilation, Modal CLI import/help and CPU tests.
-No successful manipulation or performance improvement is claimed by this change.
+The three-seed result is not evidence of held-out generalization or a causal
+performance improvement from any individual conditioning component.

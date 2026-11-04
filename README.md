@@ -1,10 +1,16 @@
 # Object Dynamics VLA — dataset-first experiment kit
 
-**Hackathon submission:** see [the project and evidence draft](docs/HACKATHON_SUBMISSION.md)
-and the [aligned dataset training guide](docs/ALIGNED_DATASET_TRAINING.md).
-The Muse/SAM-conditioned manipulation policy remains experimental. A
-dataset-trained checkpoint has succeeded on one training initialization;
-repeatability and generalization are still being evaluated.
+Object Dynamics VLA trains a robot action policy conditioned on frozen,
+quantized Muse visual-language features and SAM object tracking. The combined
+policy completed LIBERO's milk-placement task in **166 actions** from a
+demonstrated training initialization. With the same frozen checkpoint and
+initialization, it succeeded in **1 of 3 sampling-seed trials**; generalization
+and SAM's individual contribution remain open questions.
+
+See [the short demonstration video](submission/object_dynamics_vla_demo.mp4),
+[the submission and all three results](docs/HACKATHON_SUBMISSION.md),
+[checkpoint and evaluation instructions](docs/REPRODUCE_MUSE_SAM.md), and
+[dataset training details](docs/ALIGNED_DATASET_TRAINING.md).
 
 **Run the native-policy application:**
 
