@@ -84,8 +84,10 @@ A fresh query-normalized full-episode fit used the aligned dataset for 7,500
 updates (H200, batch 1, seed 7, AdamW lr 1e-4). The saved checkpoint SHA-256 is
 `0cbefd66c6345ec4b4ae465fcc1a1d1ad9c2874800813921e201dd9fe8948e68`, stats
 SHA-256 `e32acff4…`; the eight-frame in-sample first-action MAE fell from
-1.0024 to 0.2556 (normalized). This is a new checkpoint, not the frozen 7,500
-checkpoint.
+1.0024 to 0.2556 (normalized). That eight-frame number is only a bounded
+in-sample diagnostic. It is not a full-frame evaluation, and it cannot inherit
+the older checkpoint's 150-frame exposure-curve or all-frame results. This is a
+new checkpoint, not the frozen 7,500 checkpoint.
 
 The gated 200-action rollout from `episode_0000` then passed **every** initial
 parity check exactly: initial state `02ffa3fe…`, RGB `6cffc8a3…`, Muse feature
@@ -99,8 +101,10 @@ Failure analysis (`mask_trajectory.json`, saved masks and raw robot):
 * End-effector position error against the recorded demonstration exceeded
   3 cm by step 15, 18.7 cm at the demo's grasp step 47, and 23.7 cm at step 90.
 * Gripper command sign agreed with the demonstration on only 49% of steps
-  0–149 and **23% of the grasp window 47–141**; three consecutive
-  disagreements begin at step 50 and commands flap throughout.
+  0–149 and **23% of the grasp window 47–141**. The step-aligned comparison is
+  confounded by the arm already being 18.7 cm from the demonstration pose at
+  step 47, so it does **not** isolate a gripper defect. The decisive evidence
+  is the video and masks below.
 * The milk's upward image-centroid shift after step 40 was `0.0024` versus
   `0.0163` in the recorded demonstration; its visible area never fell below
   68% of the matched recorded frame. The milk was never lifted.
@@ -116,9 +120,64 @@ the only cause of open-loop failure.
 
 The requested two additional sampling seeds were conditional on success and
 were not run. Modal credits were nearly exhausted after the gated rollout
-(~$0.8 remaining), so no further GPU experiment was started. The aligned
-checkpoint is a resumable starting point for the next experiment; test
+(about $1.36 remaining), so no further GPU experiment was started. The aligned
+checkpoint saves weights but not optimizer or RNG state: it supports a
+continued run only with a disclosed restart, not exact resumption. Test
 initializations remain untouched.
+
+## Prepared next experiment (not run)
+
+The next learning experiment is code-prepared but deliberately not executed,
+to preserve the remaining credit. It changes data coverage and minibatch order
+only; the NF4 feature source, `MuseSamPrefix(normalize_queries=True)` and the
+noise-at-one flow objective stay fixed. Broader demonstration coverage is a
+hypothesis, not a proven cure for the control failure.
+
+* `scripts/modal_quantized_muse_feature_cache.py` builds a resumable cache of
+  frozen NF4 layer-26 Muse tokens for the aligned train split (34 episodes,
+  4,887 frames) or train+validation (42 episodes, 6,098 frames). It is gated on
+  the aligned dataset fingerprint and on every episode-0 frame's RGB and
+  feature hash from the aligned 7,500-update fit. It never reads the test
+  split.
+* `scripts/modal_quantized_muse_dataset_trainer.py` trains on every frame of
+  the selected split with shuffled minibatches, not one cycled trajectory. It
+  does not load the 30B Muse model because the cached bits are sufficient.
+  Checkpoints contain weights, AdamW state, CPU/CUDA RNG state, the exact
+  shuffled permutation/cursor, dataset/cache/statistics hashes and the fixed
+  architecture/objective flags. `--resume-step` restores all of them.
+* The same script's `evaluate` stage scores the actual new checkpoint on all
+  frames of the selected split (`train`, `val`, or `all` = train+validation),
+  with a saved index-stable noise bank and per-episode summaries. It uses ten
+  Euler steps from noise and reports the first action; it is teacher-forced
+  offline evaluation, not a simulator rollout.
+* The `plan` CPU stage validated the split counts (34/8/0 episodes,
+  4,887/1,211 frames) without GPU spending. Fifty-nine CPU tests pass,
+  including shuffled-sampler resume, full checkpoint round-trip, and on-disk
+  cache-contract tests. The train-only cache is about 28 GB; the train+val
+  cache is about 35 GB, and the shared volume had roughly 230 GB free when
+  this was prepared.
+
+A GPU run now requires new credit. The first step is the feature-cache build
+(roughly 13–16 minutes of H200 time); only after it completes can the dataset
+trainer start. The preparation itself spent no GPU time.
+
+```bash
+~/modal-venv/bin/python -m modal run -m scripts.modal_quantized_muse_feature_cache --name muse_nf4_aligned_train_v1 --split train
+~/modal-venv/bin/python -m modal run -m scripts.modal_quantized_muse_dataset_trainer --stage train
+~/modal-venv/bin/python -m modal run -m scripts.modal_quantized_muse_dataset_trainer --stage evaluate
+```
+
+For all 42 train+validation episodes, build a separate cache and evaluate it:
+
+```bash
+~/modal-venv/bin/python -m modal run -m scripts.modal_quantized_muse_feature_cache --name muse_nf4_aligned_all_v1 --split all
+~/modal-venv/bin/python -m modal run -m scripts.modal_quantized_muse_dataset_trainer --stage evaluate --cache muse_nf4_aligned_all_v1 --split all
+```
+
+The trainer defaults to 5,000 requested updates but stops at 1,200 seconds and
+can resume from `checkpoint_002500.pt` or `checkpoint_005000.pt` with
+`--resume-step`. Evaluation defaults to the latest committed checkpoint and
+the train split; `--split val` scores held-out episodes.
 
 ## Evidence
 
@@ -138,3 +197,10 @@ initializations remain untouched.
   `preflight_weights.pt`.
 * `/eval/muse_aligned7500_episode0000_v1/`: gated rollout report, parity,
   trace, video, per-step observations, noise array, `mask_trajectory.json`.
+* `scripts/modal_quantized_muse_feature_cache.py`: resumable, parity-gated NF4
+  cache builder (prepared, not run).
+* `scripts/modal_quantized_muse_dataset_trainer.py`: aligned full-split,
+  shuffled-minibatch trainer with complete resumable checkpoints and
+  all-frame offline evaluation (prepared, not run).
+* `odvla/vla/sampler.py`, `odvla/vla/checkpointing.py`: resumable sample order
+  and checkpoint contract, covered by the CPU test suite.

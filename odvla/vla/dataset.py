@@ -53,9 +53,10 @@ class CachedEpisodeDataset:
         provenance = read_json(self.cache / "manifest.json")
         if not provenance.get("complete") or provenance.get("dataset_fingerprint") != self.splits["fingerprint"]:
             raise ValueError("Missing or mismatched complete Muse cache")
-        if split not in ("train", "val"):
-            raise ValueError("Only train and validation are supported; no untouched test bank")
-        self.entries = {e["id"]: e for e in self.manifest["episodes"] if e["id"] in self.splits[split]}
+        if split not in ("train", "val", "all"):
+            raise ValueError("Only train, validation, or all (train+val) are supported; no untouched test bank")
+        selected_ids = set(self.splits["train"] + self.splits["val"]) if split == "all" else set(self.splits[split])
+        self.entries = {e["id"]: e for e in self.manifest["episodes"] if e["id"] in selected_ids}
         self.episodes = {name: load_episode(self.root, entry, self.manifest, include_images=False)
                          for name, entry in self.entries.items()}
         self.index = [(name, t) for name, episode in self.episodes.items() for t in range(len(episode["timestamps"]))]
